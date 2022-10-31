@@ -1,14 +1,11 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp, getApp } from "firebase/app";
 import {
   getAuth,
   GoogleAuthProvider,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
 } from "firebase/auth";
 import {
   getFirestore,
   collection,
-  onSnapshot,
   where,
   getDocs,
   query,
@@ -29,6 +26,16 @@ const firebaseConfig = {
   appId: "1:50081894255:web:4957024ec329e0aaa9629a",
   measurementId: "G-7SPEY5NV3F"
 };
+
+// const firebaseConfig = {
+//   apiKey: process.env.REACT_APP_APIKEY,
+//   authDomain: process.env.REACT_APP_AUTHDOMAIN,
+//   projectId: process.env.REACT_APP_PROJECTID,
+//   storageBucket: process.env.REACT_APP_STORAGEBUCKET,
+//   messagingSenderId: process.env.REACT_APP_MESSAGINGSENDERID,
+//   appId: process.env.REACT_APP_APPID,
+//   measurementId: process.env.REACT_APP_MEASUREMENTID
+// };
 
 function createFirebaseApp(config) {
   try {
