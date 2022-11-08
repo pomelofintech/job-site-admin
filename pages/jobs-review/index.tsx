@@ -1,96 +1,116 @@
-import { firestore, postToJSON } from '../../lib/firebase';
-import { Timestamp, query, where, orderBy, limit, collectionGroup, getDocs, startAfter, getFirestore } from 'firebase/firestore';
-import { useState } from 'react';
-import PostFeed from '../../components/JobPostFeed';
-import Loader from '../../components/Loader';
-import { getStorage, ref, updateMetadata } from '@firebase/storage';
+import React, { useEffect, useState } from "react";
+import AuthCheck from "../../components/AuthCheck";
+import {
+  getFirestore,
+  doc,
+  updateDoc,
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  collectionGroup,
+} from "firebase/firestore";
+import { auth } from "../../lib/firebase";
+import JobCardFeed from "../../components/JobCardFeed";
+import { useRouter } from "next/router";
 
- 
 
-// Max post to query per page
-const LIMIT = 2;
-
-
-export default function Home(props) {
-
-  // We set state on the component incase we want to featch additional posts later
-  const [posts, setPosts] = useState(props.posts);
-  // state for loading
-  const [loading, setLoading] = useState(false);
-  // state for reaching the lend of the list
-  const [postsEnd, setPostsEnd] = useState(false);
-
-// used to load more posts from the database
-const getMorePosts = async () => {
-  setLoading(true);
-  const last = posts[posts.length - 1];
-
-  // converts the timestamp
-  const cursor = typeof last.createdAt === 'number' ? Timestamp.fromMillis(last.createdAt) : last.createdAt;
-
-  // get the posts by in a timestap desending order
-  const ref = collectionGroup(getFirestore(), 'posts');
-  const postsQuery = query(
-    ref,
-    where('published', '==', true),
-    orderBy('createdAt', 'desc'),
-    startAfter(cursor),
-    limit(LIMIT),
+export default function Favourites() {
+  return (
+    <AuthCheck>
+      <FavouritesTitle />
+      <FavouriteJobs />
+    </AuthCheck>
   );
-
-  // get the data and maps it to the posts component
-  const newPosts = (await getDocs(postsQuery)).docs.map((doc) => doc.data());
-
-  setPosts(posts.concat(newPosts));
-  setLoading(false);
-
-  // check if posts is at its LIMIT
-  if (newPosts.length < LIMIT) {
-    setPostsEnd(true);
-  }
-
 }
+
+function FavouritesTitle() {
+  const updateMarketingPref = async (e) => {
+    const uid = auth.currentUser.uid;
+    console.log(uid);
+
+    const ref = doc(getFirestore(), "users", uid);
+
+    await updateDoc(ref, {
+      marketingPref: e.value,
+    });
+
+  };
 
   return (
-    <>
-    <main>
-
-      <div className="card card-info">
-        <h2>💡 Next.js + Firebase - The Full Course</h2>
-        <p>Welcome! This app is built with Next.js and Firebase and is loosely inspired by Dev.to.</p>
-        <p>Sign up for an 👨‍🎤 account, ✍️ write posts, then 💞 heart content created by other users. All public content is server-rendered and search-engine optimized.</p>
+    <div id="" className="settings_page min_view">
+      <div className="fXgiup block">
+        <h2 className="settings-title">Favourites</h2>
+        {/* <button onClick={testNew}>testNew</button> */}
       </div>
-
-      <PostFeed posts={posts} admin={false} />
-
-      {/* used as part of the loading and button to show more posts */}
-      {/* {!loading && !postsEnd && <button onClick={getMorePosts}>Load More</button>} */}
-
-      {/* loading components */}
-      <Loader show={loading} />
-
-      {postsEnd && 'You have reached the end!'}
-    </main>
-
-</>
+    </div>
   );
 }
 
-/*
-******* LINK COMPONENT *******
+function FavouriteJobs() {
+  let [pItem, setpostItem] = useState(null);
+  const uid = auth.currentUser.uid;
+  console.log(uid);
 
-import Link from 'next/link'
-Creating hyperlinks is done using the link component
-<Link href="harry"><a> Harry's profile</a></Link>
-Links to a new page by the component name
+  const t = async () => {
+    const q = query(
+      collectionGroup(getFirestore(), "clientTest"),
+      where("live", "==", false),
+      orderBy("addedAt")
+    );
 
-You can be really specific with links if you add in the pathname and the query parameters
-<Link href={{
-  pathname: '/[username]'
-  query: { username: 'harry' },
-}}><a> Harry's profile</a> </Link>
+    console.log(q);
 
-Next will also try to prefetch any links in this component to make the site quicker
-this can be done using the prefetch parameter, it is a bool
-<Link prefetch={true} href="harry"><a> Harry's profile</a></Link>
-*/
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const newItems = querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      console.log(newItems);
+      setpostItem(newItems);
+      console.log("bob");
+    });
+    return unsubscribe;
+  };
+  useEffect(() => {t();}, []);
+
+  // function FavouriteJobs() {
+  //   let [pItem, setpostItem] = useState(null);
+  //   const uid = auth.currentUser.uid;
+  //   console.log(uid);
+
+  //   useEffect(() => {
+  //     const q = query(
+  //       collection(getFirestore(), "users", uid, "favoriteJobs"),
+  //       where("live", "==", true),
+  //       orderBy("timeAddedToFavourites")
+  //     );
+
+  //     console.log(q);
+
+  //     const unsubscribe = onSnapshot(q, (querySnapshot) => {
+  //       const newItems = querySnapshot.docs.map((doc) => ({
+  //         ...doc.data(),
+  //         id: doc.id,
+  //       }));
+  //       console.log(newItems);
+  //       setpostItem(newItems);
+  //       console.log("bob");
+  //     });
+  //     return unsubscribe;
+  //   }, [getFirestore(),uid]);
+
+  console.log("testy");
+  console.log(pItem);
+
+  return (
+    <div className="search-page-view">
+      <div className="ais-Hits">
+        <div className="ais-Hits-list">
+          <JobCardFeed posts={pItem} />
+        </div>
+      </div>
+    </div>
+  );
+}

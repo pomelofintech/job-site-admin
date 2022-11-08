@@ -5,7 +5,9 @@ import Link from 'next/link'
 export default function Home() {
   return (
     <div>
-
+          <Link href="/jobs-review" passHref>
+            <button className="btn-logo">Review Jobs.</button>
+          </Link>
     </div>
   )
 }
