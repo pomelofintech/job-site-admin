@@ -67,6 +67,7 @@ function JobReviewList() {
         ...doc.data(),
         id: doc.id,
       }));
+      console.log(newItems);
       setpostItem(newItems);
     });
     return unsubscribe;
