@@ -19,12 +19,21 @@ export default function Navbar(props) {
 
   return (
     <nav className="navbar">
-      <div className="navbar-push-left">
-        <Link href="/" passHref>
-          <button className="btn-logo">Pursue.</button>
-        </Link>
-      </div>
+      {user && (
+        <div className="navbar-push-left">
+          <Link href="/dashboard" passHref>
+            <button className="btn-logo">Pursue.</button>
+          </Link>
+        </div>
+      )}
 
+      {!user && (
+        <div className="navbar-push-left">
+          <Link href="/" passHref>
+            <button className="btn-logo">Pursue.</button>
+          </Link>
+        </div>
+      )}
       {/* user is signed in and has a username */}
       {/* If user does have a username, render a fragment, which is an empty HTML element
                 allos for multiple elements but doesnt require a parent element */}

@@ -13,19 +13,23 @@ export default function JobCardFeed({ posts }) {
   useEffect(() => {
     const q = query(
       collectionGroup(getFirestore(), "clientTest"),
-      where("live", "==", false),
+      where("reviewed", "==", false),
       orderBy("addedAt")
     );
+
+    console.log('harry');
+    console.log(q);
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const newItems = querySnapshot.docs.map((doc) => ({
         ...doc.data(),
         id: doc.id,
       }));
+      console.log(newItems);
       setpostItem(newItems);
     });
     return unsubscribe;
-  }, [getFirestore(), uid]);
+  }, [getFirestore()]);
 
   return posts
     ? posts.map((post) => <PostItem post={post} key={post.slug} />)
@@ -43,18 +47,10 @@ function PostItem({ post }) {
     <div className="search-page-view">
       <a className="select-role" onClick={() => console.log("test")}>
         <div className="parent">
-          <div className="div1">
-            <img src={post.avatar || post.logo} alt="Company Logo"/>
-          </div>
           <div className="div3">{post.jobTitle}</div>
-          <div className="div4"> {post.company}</div>
-          <div className="div5"> London, UK</div>
-          <div className="div6"> XX applicants</div>
-          <div className="div7">
-            <a onClick={null} style={{ cursor: "pointer" }}>
-              <i className="material-icons">favorite</i>
-            </a>
-          </div>
+          <div className="div4"> {post.companyName}</div>
+          <div className="div5"> {post.location}</div>
+          <div className="div6"> {post.reviewed}</div>
         </div>
       </a>
     </div>

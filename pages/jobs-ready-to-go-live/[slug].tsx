@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import AuthCheck from "../../components/AuthCheck";
 import { getCompanyDetailsWithJobAdvert } from "../../lib/firebase";
 
-export default function JobReviewSpec(props) {
+export default function JobsReadyToGoLiveSpec(props) {
     const [jobAdvertData, setJobAdvertData] = useState(null);
     const [companyAdvertData, setCompanyAdvertData] = useState(null);
     const [jobAdvertID, setJobAdvertID] = useState(null);

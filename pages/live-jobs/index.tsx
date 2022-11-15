@@ -19,13 +19,13 @@ import { useRouter } from "next/router";
 export default function Favourites() {
   return (
     <AuthCheck>
-      <JobReview />
-      <JobReviewList />
+      <LiveRoles />
+      <LiveRolesList />
     </AuthCheck>
   );
 }
 
-function JobReview() {
+function LiveRoles() {
   const updateMarketingPref = async (e) => {
     const uid = auth.currentUser.uid;
     console.log(uid);
@@ -48,7 +48,7 @@ function JobReview() {
   );
 }
 
-function JobReviewList() {
+function LiveRolesList() {
   let [pItem, setpostItem] = useState(null);
   const uid = auth.currentUser.uid;
   console.log(uid);
@@ -56,7 +56,8 @@ function JobReviewList() {
   const t = async () => {
     const q = query(
       collectionGroup(getFirestore(), "clientTest"),
-      where("reviewed", "==", false),
+      where("reviewed", "==", true),
+      where("published", "==", true),
       orderBy("addedAt")
     );
 

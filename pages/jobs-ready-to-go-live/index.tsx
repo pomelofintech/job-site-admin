@@ -16,16 +16,16 @@ import JobCardFeed from "../../components/JobCardFeed";
 import { useRouter } from "next/router";
 
 
-export default function Favourites() {
+export default function JobsReadyToGoLive() {
   return (
     <AuthCheck>
-      <JobReview />
-      <JobReviewList />
+      <FavouritesTitle />
+      <FavouriteJobs />
     </AuthCheck>
   );
 }
 
-function JobReview() {
+function FavouritesTitle() {
   const updateMarketingPref = async (e) => {
     const uid = auth.currentUser.uid;
     console.log(uid);
@@ -48,7 +48,7 @@ function JobReview() {
   );
 }
 
-function JobReviewList() {
+function FavouriteJobs() {
   let [pItem, setpostItem] = useState(null);
   const uid = auth.currentUser.uid;
   console.log(uid);
@@ -56,7 +56,8 @@ function JobReviewList() {
   const t = async () => {
     const q = query(
       collectionGroup(getFirestore(), "clientTest"),
-      where("reviewed", "==", false),
+      where("reviewed", "==", true),
+      where("published", "==", false),
       orderBy("addedAt")
     );
 
@@ -67,11 +68,16 @@ function JobReviewList() {
         ...doc.data(),
         id: doc.id,
       }));
+      console.log(newItems);
       setpostItem(newItems);
+      console.log("bob");
     });
     return unsubscribe;
   };
   useEffect(() => {t();}, []);
+
+  console.log("testy");
+  console.log(pItem);
 
   return (
     <div className="search-page-view">
