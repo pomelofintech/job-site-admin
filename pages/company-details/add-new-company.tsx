@@ -1,70 +1,58 @@
-import { doc, getFirestore, onSnapshot } from "firebase/firestore";
+import { doc, getFirestore, onSnapshot, writeBatch } from "firebase/firestore";
 import { connectStorageEmulator } from "firebase/storage";
 import router, { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import AuthCheck from "../../components/AuthCheck";
 import Loader from "../../components/Loader";
-import { getCompanyDetailsWithJobAdvert } from "../../lib/firebase";
 
-export default function JobReviewSpec(props) {
-  const [jobAdvertData, setJobAdvertData] = useState(null);
-  const [companyAdvertData, setCompanyAdvertData] = useState(null);
-  const [jobAdvertID, setJobAdvertID] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const { slug } = router.query;
-  const s = Array.isArray(slug) ? slug[0] : slug;
-
-  useEffect(() => {
-    const fetchJobAdvertData = async () => {
-      setLoading(true);
-      try {
-        const responseJobAdvert = doc(getFirestore(), "clientTest", s);
-        const unsubscribe = onSnapshot(responseJobAdvert, async (doc) => {
-          setJobAdvertData(doc.data());
-          // const com = await getCompanyDetailsWithJobAdvert(doc.data().uid);
-          // setCompanyAdvertData(com);
-          // console.log(com);
-        });
-        setLoading(false);
-
-        return unsubscribe;
-        // }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchJobAdvertData();
-  }, [getFirestore(), s]);
-
-  return (
-    <AuthCheck>
-      <Loader show={loading} />
-
-      <div id="" className="settings_page min_view">
-        <div className="fXgiup block">
-          {/* <JobAdvertCompanyDetails
-              jobData={jobAdvertData}
-              companyData={companyAdvertData}
-            /> */}
-          <CompanyDetails jobData={jobAdvertData} />
-        </div>
-      </div>
-    </AuthCheck>
-  );
-}
-
-function CompanyDetails(props) {
+export default function CompanyDetails(props) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [error, setError] = useState("");
 
-  console.log("hi H");
-  console.log(props.jobData);
-  console.log(props.jobData?.jobTitle);
+
+  const getLocalData = async (regUsr) => {
+
+    if (localStorage) {
+      let stickyValue = window.localStorage.getItem("user");
+      stickyValue = JSON.parse(stickyValue);
+
+      const userDoc = doc(getFirestore(), "users", regUsr, "job-preferences", regUsr);
+      setError("");
+      try {
+        const batch = writeBatch(getFirestore());
+        batch.set(userDoc, {
+          roleType: stickyValue['roleType'],
+          sector: stickyValue['sector'],
+          companyQuality: stickyValue['companyQuality'],
+          perks: stickyValue['perks'],
+          comapnySize: stickyValue['comapnySize'],
+          experience: stickyValue['experience'],
+          workingStyle: stickyValue['workingStyle'],
+          companyCulture:stickyValue['companyCulture'] ,
+          roles: stickyValue['roles'],
+          technologies: stickyValue['technologies'],
+          searchStage: stickyValue['searchStage'],
+          newTechnologies: stickyValue['newTechnologies'],
+          leavingRole: stickyValue['leavingRole'],
+          visa: Boolean(stickyValue['visa']),
+          describeYou: stickyValue['describeYou'],
+        });
+    
+        await batch.commit();
+      } catch (err) {
+          return err;
+      }
+      return '200';
+    };
+
+  }
 
   return (
+    <div id="" className="settings_page min_view">
+    <div className="fXgiup block">
     <div className="fNgGjC content">
       <h2 className="settings-title block_title">Company Details</h2>
       <div className="eHIaoM">
@@ -72,7 +60,7 @@ function CompanyDetails(props) {
           <form onSubmit={null}>
             <div className="jBUQajq field">
               <label htmlFor="email" className="gNTSvw question">
-                About the company
+                Background Image URL - Upload image to firebase storage manaually
               </label>
               <div className="cqMAuL">
                 <input
@@ -89,7 +77,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="firstName" className="gNTSvw question">
-                About the role
+                Company Name
               </label>
               <div className="cqMAuL">
                 <input
@@ -105,7 +93,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="lastName" className="gNTSvw question">
-                Salary bands
+                Company Mission
               </label>
               <div className="cqMAuL">
                 <input
@@ -121,7 +109,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="lastName" className="gNTSvw question">
-                Candidate Required Skills
+                Website URL
               </label>
               <div className="cqMAuL">
                 <input
@@ -137,7 +125,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="lastName" className="gNTSvw question">
-                Candidate Skills
+                Twitter URL
               </label>
               <div className="cqMAuL">
                 <input
@@ -153,7 +141,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="lastName" className="gNTSvw question">
-                Company Benefits
+                Instagram URL
               </label>
               <div className="cqMAuL">
                 <input
@@ -169,7 +157,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="lastName" className="gNTSvw question">
-                Employment type
+                Facebook URL
               </label>
               <div className="cqMAuL">
                 <input
@@ -185,7 +173,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="lastName" className="gNTSvw question">
-                Experience level
+                Linkedin URL
               </label>
               <div className="cqMAuL">
                 <input
@@ -201,7 +189,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="lastName" className="gNTSvw question">
-                Interview process
+                Compant Logo URL - manaually upload to firebase storage
               </label>
               <div className="cqMAuL">
                 <input
@@ -217,7 +205,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="lastName" className="gNTSvw question">
-                job title
+                Company Sectors
               </label>
               <div className="cqMAuL">
                 <input
@@ -233,7 +221,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="lastName" className="gNTSvw question">
-                Job title tags
+                Address Ln1
               </label>
               <div className="cqMAuL">
                 <input
@@ -249,7 +237,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="lastName" className="gNTSvw question">
-                Primary Skills
+                  Address Ln2
               </label>
               <div className="cqMAuL">
                 <input
@@ -265,7 +253,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="lastName" className="gNTSvw question">
-                Remote working
+                City
               </label>
               <div className="cqMAuL">
                 <input
@@ -281,7 +269,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="lastName" className="gNTSvw question">
-                tech stack
+                Post code
               </label>
               <div className="cqMAuL">
                 <input
@@ -297,7 +285,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="lastName" className="gNTSvw question">
-                Visa sponsorship
+                Reviewed
               </label>
               <div className="cqMAuL">
                 <input
@@ -311,60 +299,21 @@ function CompanyDetails(props) {
               </div>
             </div>
 
-            <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
-                Link to company name
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
-                Application URL
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
-                Role Reviewed
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                />
-              </div>
-            </div>
+            <p>Need to add the following to firebase when save</p>
+            <p>slug - based on company name</p>
+            <p>uid - based on document ID</p>
+            <p>addedAt - based on date and time added to firebase</p>
+            <p>companyCreation - set to true, ALWAYS</p>
 
             <button type="submit" className="set-btn">
               Save
             </button>
           </form>
         </div>
+        <p>{error}</p>
       </div>
+    </div>
+    </div>
     </div>
   );
 }
