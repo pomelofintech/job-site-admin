@@ -2,9 +2,9 @@ import { doc, getFirestore, onSnapshot } from "firebase/firestore";
 import { connectStorageEmulator } from "firebase/storage";
 import router, { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import AuthCheck from "../../components/AuthCheck";
-import Loader from "../../components/Loader";
-import { getCompanyDetailsWithJobAdvert } from "../../lib/firebase";
+import AuthCheck from "../../../components/AuthCheck";
+import Loader from "../../../components/Loader";
+import { getCompanyDetailsWithJobAdvert } from "../../../lib/firebase";
 
 export default function JobReviewSpec(props) {
   const [jobAdvertData, setJobAdvertData] = useState(null);

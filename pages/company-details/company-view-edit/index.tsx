@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import AuthCheck from "../../components/AuthCheck";
+import AuthCheck from "../../../components/AuthCheck";
 import {
   getFirestore,
   doc,
@@ -11,10 +11,9 @@ import {
   onSnapshot,
   collectionGroup,
 } from "firebase/firestore";
-import { auth } from "../../lib/firebase";
-import JobCardFeed from "../../components/JobCardFeed";
+import { auth } from "../../../lib/firebase";
+import JobCardFeed from "../../../components/JobCardFeed";
 import { useRouter } from "next/router";
-
 
 export default function Favourites() {
   return (
@@ -35,7 +34,6 @@ function JobReview() {
     await updateDoc(ref, {
       marketingPref: e.value,
     });
-
   };
 
   return (
@@ -72,7 +70,9 @@ function JobReviewList() {
     });
     return unsubscribe;
   };
-  useEffect(() => {t();}, []);
+  useEffect(() => {
+    t();
+  }, []);
 
   return (
     <div className="search-page-view">
