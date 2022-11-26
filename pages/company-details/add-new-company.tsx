@@ -63,7 +63,7 @@ export default function CompanyDetails(props) {
         postCode: postCode,
         reviewed: reviewedToggle,
         slug: companyName,
-        uid: uuid,
+        uid: uuid + companyName,
         addedAt: serverTimestamp(),
         companyCreation: true,
       });
