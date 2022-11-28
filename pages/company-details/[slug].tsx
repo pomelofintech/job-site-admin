@@ -73,55 +73,55 @@ function CompanyDetails(props) {
   const [city, setCity] = useState("");
   const [postCode, setPostCode] = useState("");
   const [error, setError] = useState("");
-  const [reviewedToggle, setReviewedToggle] = useState(false);
+  // const [reviewedToggle, setReviewedToggle] = useState(false);
   const uuid = uuidv4();
 
   console.log("hi H");
   console.log(props.jobData);
   console.log(props.jobData?.companyName);
 
-  const updateCompany = async (e) => {
-    e.preventDefault();
-    setError("");
+  // const updateCompany = async (e) => {
+  //   e.preventDefault();
+  //   setError("");
 
 
-    // if (reviewedToggle === false) {
-    //   return setError("Error creating new company, please try again");
-    // }
-    const newCompanyDoc = doc(getFirestore(), "companyDetails", uuid);
-    setError("");
-    try {
-      const batch = writeBatch(getFirestore());
-      batch.set(newCompanyDoc, {
-        companyName: companyName,
-        backgroundImageUrl: backgroundImageUrl,
-        companyMission: companyMission,
-        wesbiteUrl: wesbiteUrl,
-        twitterUrl: twitterUrl,
-        instagramUrl: instagramUrl,
-        facebookUrl: facebookUrl,
-        linkedinUrl: linkedinUrl,
-        companyLogoUrl: companyLogoUrl,
-        companySectors: companySectors, // needs to be saved as array
-        addressLn1: addressLn1,
-        addressLn2: addressLn2,
-        city: city,
-        postCode: postCode,
-        reviewed: reviewedToggle,
-        slug: companyName,
-        uid: uuid,
-        addedAt: serverTimestamp(),
-        companyCreation: true,
-      });
+  //   // if (reviewedToggle === false) {
+  //   //   return setError("Error creating new company, please try again");
+  //   // }
+  //   const newCompanyDoc = doc(getFirestore(), "companyDetails", uuid);
+  //   setError("");
+  //   try {
+  //     const batch = writeBatch(getFirestore());
+  //     batch.set(newCompanyDoc, {
+  //       companyName: companyName,
+  //       backgroundImage: backgroundImageUrl,
+  //       companyMission: companyMission,
+  //       website: wesbiteUrl,
+  //       twitter: twitterUrl,
+  //       instagram: instagramUrl,
+  //       facebook: facebookUrl,
+  //       linkedin: linkedinUrl,
+  //       logo: companyLogoUrl,
+  //       companySectors: companySectors, // needs to be saved as array
+  //       addressLn1: addressLn1,
+  //       addressLn2: addressLn2,
+  //       city: city,
+  //       postCode: postCode,
+  //       reviewed: reviewedToggle,
+  //       slug: uuid,
+  //       uid: uuid,
+  //       addedAt: serverTimestamp(),
+  //       companyCreation: true,
+  //     });
 
-      await batch.commit();
-    } catch (err) {
-      return toast.success("Error creating new company, please try again");
-    }
-    router.push('/company-details');
-    return toast.success("New company added");
+  //     await batch.commit();
+  //   } catch (err) {
+  //     return toast.success("Error creating new company, please try again");
+  //   }
+  //   router.push('/company-details');
+  //   return toast.success("New company added");
   
-  };
+  // };
 
   return (
     <div className="fNgGjC content">
@@ -131,31 +131,30 @@ function CompanyDetails(props) {
           <form onSubmit={null}>
 
             <div className="jBUQajq field">
-                  <label htmlFor="email" className="gNTSvw question">
+                  <label htmlFor="backgroundImageUrl" className="gNTSvw question">
                     Background Image URL - Upload image to firebase storage
                     manaually
                   </label>
                   <div className="cqMAuL">
                     <input
-                      // defaultValue={doc.email}
-                      id="email"
-                      name="email"
+                      id="backgroundImageUrl"
+                      name="backgroundImageUrl"
                       type="text"
                       className="SDDHw"
-                      value={props.jobData?.backgroundImageUrl}
+                      value={props.jobData?.backgroundImage}
                       onChange={(e) => setBackgroundImageUrl(e.target.value)}
                     />
                   </div>
                 </div>
 
                 <div className="jBUQajq field">
-                  <label htmlFor="firstName" className="gNTSvw question">
+                  <label htmlFor="companyName" className="gNTSvw question">
                     Company Name
                   </label>
                   <div className="cqMAuL">
                     <input
-                      id="firstName"
-                      name="firstName"
+                      id="companyName"
+                      name="companyName"
                       type="text"
                       className="SDDHw"
                       value={props.jobData?.companyName}
@@ -165,13 +164,13 @@ function CompanyDetails(props) {
                 </div>
 
                 <div className="jBUQajq field">
-                  <label htmlFor="lastName" className="gNTSvw question">
+                  <label htmlFor="companyMission" className="gNTSvw question">
                     Company Mission
                   </label>
                   <div className="cqMAuL">
                     <input
-                      id="lastName"
-                      name="lastName"
+                      id="companyMission"
+                      name="companyMission"
                       type="text"
                       className="SDDHw"
                       value={props.jobData?.companyMission}
@@ -181,109 +180,109 @@ function CompanyDetails(props) {
                 </div>
 
                 <div className="jBUQajq field">
-                  <label htmlFor="lastName" className="gNTSvw question">
+                  <label htmlFor="websiteUrl" className="gNTSvw question">
                     Website URL
                   </label>
                   <div className="cqMAuL">
                     <input
-                      id="lastName"
-                      name="lastName"
+                      id="websiteUrl"
+                      name="websiteUrl"
                       type="text"
                       className="SDDHw"
-                      value={props.jobData?.wesbiteUrl}
+                      value={props.jobData?.website}
                       onChange={(e) => setWesbiteUrl(e.target.value)}
                     />
                   </div>
                 </div>
 
                 <div className="jBUQajq field">
-                  <label htmlFor="lastName" className="gNTSvw question">
+                  <label htmlFor="twitterUrl" className="gNTSvw question">
                     Twitter URL
                   </label>
                   <div className="cqMAuL">
                     <input
-                      id="lastName"
-                      name="lastName"
+                      id="twitterUrl"
+                      name="twitterUrl"
                       type="text"
                       className="SDDHw"
-                      value={props.jobData?.twitterUrl}
+                      value={props.jobData?.twitter}
                       onChange={(e) => setTwitterUrl(e.target.value)}
                     />
                   </div>
                 </div>
 
                 <div className="jBUQajq field">
-                  <label htmlFor="lastName" className="gNTSvw question">
+                  <label htmlFor="instagramUrl" className="gNTSvw question">
                     Instagram URL
                   </label>
                   <div className="cqMAuL">
                     <input
-                      id="lastName"
-                      name="lastName"
+                      id="instagramUrl"
+                      name="instagramUrl"
                       type="text"
                       className="SDDHw"
-                      value={props.jobData?.instagramUrl}
+                      value={props.jobData?.instagram}
                       onChange={(e) => setInstagramUrl(e.target.value)}
                     />
                   </div>
                 </div>
 
                 <div className="jBUQajq field">
-                  <label htmlFor="lastName" className="gNTSvw question">
+                  <label htmlFor="facebookUrl" className="gNTSvw question">
                     Facebook URL
                   </label>
                   <div className="cqMAuL">
                     <input
-                      id="lastName"
-                      name="lastName"
+                      id="facebookUrl"
+                      name="facebookUrl"
                       type="text"
                       className="SDDHw"
-                      value={props.jobData?.facebookUrl}
+                      value={props.jobData?.facebook}
                       onChange={(e) => setFacebookUrl(e.target.value)}
                     />
                   </div>
                 </div>
 
                 <div className="jBUQajq field">
-                  <label htmlFor="lastName" className="gNTSvw question">
+                  <label htmlFor="linkedinUrl" className="gNTSvw question">
                     Linkedin URL
                   </label>
                   <div className="cqMAuL">
                     <input
-                      id="lastName"
-                      name="lastName"
+                      id="linkedinUrl"
+                      name="linkedinUrl"
                       type="text"
                       className="SDDHw"
-                      value={props.jobData?.linkedinUrl}
+                      value={props.jobData?.linkedin}
                       onChange={(e) => setLinkedinUrl(e.target.value)}
                     />
                   </div>
                 </div>
 
                 <div className="jBUQajq field">
-                  <label htmlFor="lastName" className="gNTSvw question">
-                    Compant Logo URL - manaually upload to firebase storage
+                  <label htmlFor="companyLogoUrl" className="gNTSvw question">
+                    Company Logo URL - manaually upload to firebase storage
                   </label>
                   <div className="cqMAuL">
                     <input
-                      id="lastName"
-                      name="lastName"
+                      id="companyLogoUrl"
+                      name="companyLogoUrl"
                       type="text"
                       className="SDDHw"
-                      value={props.jobData?.companyLogoUrl}
+                      value={props.jobData?.logo}
                       onChange={(e) => setCompanyLogoUrl(e.target.value)}
                     />
                   </div>
                 </div>
 
                 <div className="jBUQajq field">
-                  <label htmlFor="lastName" className="gNTSvw question">
+                  <label htmlFor="companySectors" className="gNTSvw question">
                     Company Sectors
                   </label>
                   <div className="cqMAuL">
                     <input
-                      id="lastName"
-                      name="lastName"
+                      id="companySectors"
+                      name="companySectors"
                       type="text"
                       className="SDDHw"
                       value={props.jobData?.companySectors}
@@ -293,13 +292,13 @@ function CompanyDetails(props) {
                 </div>
 
                 <div className="jBUQajq field">
-                  <label htmlFor="lastName" className="gNTSvw question">
+                  <label htmlFor="addressLn1" className="gNTSvw question">
                     Address line 1
                   </label>
                   <div className="cqMAuL">
                     <input
-                      id="lastName"
-                      name="lastName"
+                      id="addressLn1"
+                      name="addressLn1"
                       type="text"
                       className="SDDHw"
                       value={props.jobData?.addressLn1}
@@ -309,13 +308,13 @@ function CompanyDetails(props) {
                 </div>
 
                 <div className="jBUQajq field">
-                  <label htmlFor="lastName" className="gNTSvw question">
+                  <label htmlFor="addressLn2" className="gNTSvw question">
                     Address line 2
                   </label>
                   <div className="cqMAuL">
                     <input
-                      id="lastName"
-                      name="lastName"
+                      id="addressLn2"
+                      name="addressLn2"
                       type="text"
                       className="SDDHw"
                       value={props.jobData?.addressLn2}
@@ -325,13 +324,13 @@ function CompanyDetails(props) {
                 </div>
 
                 <div className="jBUQajq field">
-                  <label htmlFor="lastName" className="gNTSvw question">
+                  <label htmlFor="city" className="gNTSvw question">
                     City
                   </label>
                   <div className="cqMAuL">
                     <input
-                      id="lastName"
-                      name="lastName"
+                      id="city"
+                      name="city"
                       type="text"
                       className="SDDHw"
                       value={props.jobData?.city}
@@ -341,13 +340,13 @@ function CompanyDetails(props) {
                 </div>
 
                 <div className="jBUQajq field">
-                  <label htmlFor="lastName" className="gNTSvw question">
+                  <label htmlFor="postCode" className="gNTSvw question">
                     Post code
                   </label>
                   <div className="cqMAuL">
                     <input
-                      id="lastName"
-                      name="lastName"
+                      id="postCode"
+                      name="postCode"
                       type="text"
                       className="SDDHw"
                       value={props.jobData?.postCode}
@@ -356,18 +355,19 @@ function CompanyDetails(props) {
                     />
                   </div>
                 </div>
-
+{/* 
                 <Toggle
                   defaultChecked={reviewedToggle}
                   name="reviewedToggle"
                   value={true}
                   onChange={(e) => setReviewedToggle(e.target.value)}
-                />
+                /> */}
 
                 <button
                   type="submit"
                   className="set-btn"
-                  onClick={updateCompany}
+                  onClick={null}
+                  // onClick={updateCompany}
                 >
                   Update
                 </button>

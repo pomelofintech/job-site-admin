@@ -11,9 +11,6 @@ export default function Dashboard() {
           <Link href="/jobs-review" passHref>
             <button className="btn-logo">Review Jobs</button>
           </Link>
-          <Link href="/jobs-ready-to-go-live" passHref>
-            <button className="btn-logo">Jobs read to go live</button>
-          </Link>
           <Link href="/live-jobs" passHref>
             <button className="btn-logo">Live Jobs.</button>
           </Link>

@@ -40,8 +40,8 @@ export default function JobCardFeed({ posts }) {
     ? posts.map((post) => <PostItem post={post} key={post.slug} />)
     : null;
 
-    
-    
+
+
 }
 
 function PostItem({ post }) {
@@ -53,16 +53,21 @@ function PostItem({ post }) {
   return (
     <div className="ais-Hits-item">
 
-    <div className="search-page-view">
-      <a className="select-role" onClick={() => getNote(post.slug)}>
-        <div className="parent">
-          <div className="div3">{post.jobTitle}</div>
-          <div className="div4"> {post.companyName}</div>
-          <div className="div5"> {post.location}</div>
-          <div className="div6"> {post.reviewed}</div>
-        </div>
-      </a>
-    </div>
+      <div className="search-page-view">
+        <a className="select-role" onClick={() => getNote(post.slug)}>
+          <div className="parent">
+            <div className="div3">{post.jobTitle}</div>
+            <div className="div4"> {post.companyName}</div>
+            <div className="div5"> {post.location}</div>
+            {post.reviewed ? (
+              <div className="div6" style={{ color: "#a066ff" }}> Reviewed: True</div>) : (
+              <div className="div6" style={{ color: "red" }}> Reviewed: False</div>)}
+            {post.published ? (
+              <div className="div7" style={{ color: "#a066ff" }}> Published: True</div>) : (
+              <div className="div7" style={{ color: "red" }}> Published: False</div>)}
+          </div>
+        </a>
+      </div>
     </div>
   );
 }
