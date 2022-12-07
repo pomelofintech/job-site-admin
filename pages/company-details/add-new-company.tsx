@@ -92,7 +92,6 @@ export default function CompanyDetails(props) {
                   </label>
                   <div className="cqMAuL">
                     <input
-                      // defaultValue={doc.email}
                       id="email"
                       name="email"
                       type="text"
@@ -123,7 +122,7 @@ export default function CompanyDetails(props) {
                   <label htmlFor="lastName" className="gNTSvw question">
                     Company Mission
                   </label>
-                  <div className="cqMAuL">
+                  <div className="cqMAul">
                     <input
                       id="lastName"
                       name="lastName"

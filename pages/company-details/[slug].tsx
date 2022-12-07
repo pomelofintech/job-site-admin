@@ -1,4 +1,4 @@
-import { doc, getFirestore, onSnapshot, serverTimestamp, writeBatch } from "firebase/firestore";
+import { doc, getDoc, getFirestore, onSnapshot, serverTimestamp, writeBatch } from "firebase/firestore";
 import { connectStorageEmulator } from "firebase/storage";
 import router, { useRouter } from "next/router";
 import { useState, useEffect, useRef } from "react";
@@ -8,45 +8,46 @@ import "react-toggle/style.css" // for ES6 modules
 import toast from "react-hot-toast";
 import Select, { components } from "react-select";
 import makeAnimated from "react-select/animated";
+import React from "react";
+
 
 
 const data = [
-  { value: "1", label: "Fintech" },
-  { value: "2", label: "AI" },
-  { value: "3", label: "Healthcare" },
-  { value: "4", label: "Eduction" },
-  { value: "5", label: "Travel" },
-  { value: "6", label: "Security" },
-  { value: "7", label: "Wellbeing" },
-  { value: "8", label: "Food" },
-  { value: "9", label: "Banking" },
-  { value: "10", label: "Entertainment" },
-  { value: "11", label: "Food" },
-  { value: "12", label: "Banking" },
-  { value: "13", label: "Sustainability" },
-  { value: "14", label: "Agriculture" },
-  { value: "15", label: "Insurance" },
-  { value: "16", label: "Technology" },
-  { value: "17", label: "Marketing" },
-  { value: "18", label: "HR" },
-  { value: "19", label: "Machine Learning" },
-  { value: "20", label: "Entertainment" },
-  { value: "21", label: "Communication" },
-  { value: "22", label: "Logistics" },
-  { value: "23", label: "Healthcare" },
-  { value: "24", label: "Property" },
-  { value: "25", label: "Social Impact" },
-  { value: "26", label: "Media" },
-  { value: "27", label: "Financial Services" },
-  { value: "28", label: "Adertising" },
-  { value: "29", label: "Personal Health" },
-  { value: "30", label: "Recruitment" },
-  { value: "31", label: "Digital Media" },
-  { value: "32", label: "Lifestyle" },
-  { value: "33", label: "Cloud Computing" },
-  { value: "34", label: "Eduction" },
-  { value: "34", label: "Learning" },
-  { value: "36", label: "Something else?" },
+  { value: "Fintech", label: "Fintech" },
+  { value: "AI", label: "AI" },
+  { value: "Healthcare", label: "Healthcare" },
+  { value: "Eduction", label: "Eduction" },
+  { value: "Travel", label: "Travel" },
+  { value: "Security", label: "Security" },
+  { value: "Wellbeing", label: "Wellbeing" },
+  { value: "Food", label: "Food" },
+  { value: "Banking", label: "Banking" },
+  { value: "Entertainment", label: "Entertainment" },
+  { value: "Food", label: "Food" },
+  { value: "Banking", label: "Banking" },
+  { value: "Sustainability", label: "Sustainability" },
+  { value: "Agriculture", label: "Agriculture" },
+  { value: "Insurance", label: "Insurance" },
+  { value: "Technology", label: "Technology" },
+  { value: "Marketing", label: "Marketing" },
+  { value: "HR", label: "HR" },
+  { value: "Machine Learning", label: "Machine Learning" },
+  { value: "Entertainment", label: "Entertainment" },
+  { value: "Communication", label: "Communication" },
+  { value: "Logistics", label: "Logistics" },
+  { value: "Healthcare", label: "Healthcare" },
+  { value: "Property", label: "Property" },
+  { value: "Social Impact", label: "Social Impact" },
+  { value: "Media", label: "Media" },
+  { value: "Financial Services", label: "Financial Services" },
+  { value: "Adertising", label: "Adertising" },
+  { value: "Personal Health", label: "Personal Health" },
+  { value: "Recruitment", label: "Recruitment" },
+  { value: "Digital Media", label: "Digital Media" },
+  { value: "Lifestyle", label: "Lifestyle" },
+  { value: "Cloud Computing", label: "Cloud Computing" },
+  { value: "Eduction", label: "Eduction" },
+  { value: "Learning", label: "Learning" },
 ];
 
 export default function JobReviewSpec() {
@@ -56,9 +57,9 @@ export default function JobReviewSpec() {
   const { slug } = router.query;
   const s = Array.isArray(slug) ? slug[0] : slug;
 
+
   useEffect(() => {
     console.log("This ran again");
-    setLoading(true);
     fetchJobAdvertData();
     setLoading(false);
   }, [getFirestore(), s]);
@@ -76,7 +77,12 @@ export default function JobReviewSpec() {
       console.error(err);
     }
   };
+
+
   console.log("this is the first load" + jobAdvertData);
+  console.log(jobAdvertData?.companySectors);
+
+
 
   return (
     <AuthCheck>
@@ -103,7 +109,7 @@ function CompanyDetails(props) {
   const instagramUrl = useRef(null);
   const facebookUrl = useRef(null);
   const linkedinUrl = useRef(null);
-  const [selectedSectors, setSelected] = useState([props.jobData?.companySectors]);
+  const [selected, setSelected] = useState([]);
   const companyLogoUrl = useRef(null);
   const addressLn1 = useRef(null);
   const addressLn2 = useRef(null);
@@ -112,6 +118,7 @@ function CompanyDetails(props) {
   const [error, setError] = useState("");
   const reviewedToggle = useRef(null);
 
+  const SELECT_VALUE_KEY = "compnanySec";
   const animatedComponents = makeAnimated();
 
   const { slug } = router.query;
@@ -123,14 +130,31 @@ function CompanyDetails(props) {
     setSelected(selectedInput);
   };
 
+  const banana = [{ value: "32", label: "Lifestyle" }];
 
-  let countriesList = props.jobData?.companySectors.length > 0
-    && props.jobData?.companySectors.map((item, i) => {
-      console.log(item, i);
-    return (
-      <option value={item.id}>{item}</option>
-    )
-  }, this);
+
+
+  console.log(props.jobData?.companySectors);
+
+  if (localStorage) {
+    localStorage.setItem(SELECT_VALUE_KEY, JSON.stringify(props.jobData?.companySectors));
+  }
+
+  const lastSelected = JSON.parse(
+    localStorage.getItem(SELECT_VALUE_KEY) ?? "[]"
+  );
+  setSelected(lastSelected);
+
+
+  useEffect(() => {
+    
+    const lastSelected = JSON.parse(
+      localStorage.getItem(SELECT_VALUE_KEY) ?? "[]"
+    );
+    setSelected(lastSelected);
+  }, []);
+
+
 
 
   const submit = async (e) => {
@@ -147,7 +171,7 @@ function CompanyDetails(props) {
       console.log("This is the company name: " + companyName.current.value);
       console.log("this is the check box: " + reviewedToggle.current.checked);
       console.log(props.jobData?.companySectors);
-      console.log(selectedSectors);
+      console.log(selected);
 
 
       // const batch = writeBatch(getFirestore());
@@ -191,7 +215,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="backgroundImageUrl" className="gNTSvw question">
-                Background Image URL - Upload image to firebase storage manaually
+                Background Image URL - Upload image to firebase storage manaually <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <input
@@ -202,13 +226,33 @@ function CompanyDetails(props) {
                   // this works only on input field only
                   defaultValue={props.jobData?.backgroundImage}
                   ref={backgroundImageUrl}
+                  autoComplete="off"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="jBUQajq field">
+              <label htmlFor="companyLogoUrl" className="gNTSvw question">
+                Company Logo URL - manaually upload to firebase storage <span style={{ color: "red" }}> * </span>
+              </label>
+              <div className="cqMAuL">
+                <input
+                  id="companyLogoUrl"
+                  name="companyLogoUrl"
+                  type="text"
+                  className="SDDHw"
+                  defaultValue={props.jobData?.logo}
+                  ref={companyLogoUrl}
+                  autoComplete="off"
+                  required
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
               <label htmlFor="companyName" className="gNTSvw question">
-                Company Name
+                Company Name <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <textarea
@@ -217,13 +261,15 @@ function CompanyDetails(props) {
                   className="SDDHw"
                   defaultValue={props.jobData?.companyName}
                   ref={companyName}
+                  autoComplete="off"
+                  required
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
               <label htmlFor="companyMission" className="gNTSvw question">
-                Company Mission
+                Company Mission <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <textarea
@@ -232,13 +278,15 @@ function CompanyDetails(props) {
                   className="SDDHw"
                   defaultValue={props.jobData?.companyMission}
                   ref={companyMission}
+                  autoComplete="off"
+                  required
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
               <label htmlFor="websiteUrl" className="gNTSvw question">
-                Website URL
+                Website URL <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <input
@@ -248,6 +296,8 @@ function CompanyDetails(props) {
                   className="SDDHw"
                   defaultValue={props.jobData?.website}
                   ref={wesbiteUrl}
+                  autoComplete="off"
+                  required
                 />
               </div>
             </div>
@@ -316,22 +366,6 @@ function CompanyDetails(props) {
               </div>
             </div>
 
-            <div className="jBUQajq field">
-              <label htmlFor="companyLogoUrl" className="gNTSvw question">
-                Company Logo URL - manaually upload to firebase storage
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="companyLogoUrl"
-                  name="companyLogoUrl"
-                  type="text"
-                  className="SDDHw"
-                  defaultValue={props.jobData?.logo}
-                  ref={companyLogoUrl}
-                />
-              </div>
-            </div>
-
             {/* <div className="jBUQajq field">
               <label htmlFor="companySectors" className="gNTSvw question">
                 Company Sectors
@@ -350,22 +384,23 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="companySectors" className="gNTSvw question">
-                Company Sectors
+                Company Sectors <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
-              <Select
-                isMulti={true}
-                name="colors"
-                options={data}
-                className="basic-multi-select"
-                classNamePrefix="select"
-                isSearchable
-                closeMenuOnSelect={false}
-                hideSelectedOptions={true}
-                components={animatedComponents}
-                onChange={handleSelect}
-                value={countriesList}
-              />
+                <Select
+                  isMulti={true}
+                  name="colors"
+                  options={data}
+                  className="basic-multi-select"
+                  classNamePrefix="select"
+                  isSearchable
+                  closeMenuOnSelect={false}
+                  hideSelectedOptions={true}
+                  components={animatedComponents}
+                  onChange={handleSelect}
+                  value={selected}
+                  required
+                />
               </div>
             </div>
 
@@ -373,7 +408,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="addressLn1" className="gNTSvw question">
-                Address line 1
+                Address line 1 <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <input
@@ -383,6 +418,8 @@ function CompanyDetails(props) {
                   className="SDDHw"
                   defaultValue={props.jobData?.addressLn1}
                   ref={addressLn1}
+                  autoComplete="off"
+                  required
                 />
               </div>
             </div>
@@ -405,7 +442,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="city" className="gNTSvw question">
-                City
+                City <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <input
@@ -415,13 +452,15 @@ function CompanyDetails(props) {
                   className="SDDHw"
                   defaultValue={props.jobData?.city}
                   ref={city}
+                  autoComplete="off"
+                  required
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
               <label htmlFor="postCode" className="gNTSvw question">
-                Post code
+                Post code <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <input
@@ -431,18 +470,21 @@ function CompanyDetails(props) {
                   className="SDDHw"
                   defaultValue={props.jobData?.postCode}
                   ref={postCode}
-                // required
+                  autoComplete="off"
+                  required
                 />
               </div>
             </div>
             <div className="jBUQajq field">
-              <label htmlFor="reviewedCheckbox" className="gNTSvw question">Company information reviewed? </label>
+              <label htmlFor="reviewedCheckbox" className="gNTSvw question">Company information reviewed? <span style={{ color: "red" }}> * </span></label>
               <div className="cqMAuL">
                 <input
                   type="checkbox"
                   id="reviewedCheckbox"
                   defaultChecked={props.jobData?.reviewedToggle}
                   ref={reviewedToggle}
+                  required
+                  style={{ width: 30 }}
                 />
               </div>
             </div>
@@ -451,11 +493,15 @@ function CompanyDetails(props) {
               value="Submit"
               className="set-btn"
             >
-              Update
+              Update company data
             </button>
           </form>
         </div>
       </div>
     </div>
   );
+}
+
+function sectorSelect(props) {
+
 }
