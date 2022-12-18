@@ -1,6 +1,6 @@
 import { doc, getFirestore, onSnapshot, writeBatch } from "firebase/firestore";
 import router, { useRouter } from "next/router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AuthCheck from "../../components/AuthCheck";
 import Loader from "../../components/Loader";
 import CompanyDetails from "../company-details";
@@ -28,7 +28,7 @@ export default function JobsLive(props) {
     console.log("I have ran");
     // setLoading(true);
     try {
-      const responseJobAdvert = doc(getFirestore(), "clientTest", s);
+      const responseJobAdvert = doc(getFirestore(), "jobAdvert", s);
       const unsubscribe = onSnapshot(responseJobAdvert, async (doc) => {
         setJobAdvertData(doc.data());
         // const com = await getCompanyDetailsWithJobAdvert(doc.data().uid);
@@ -68,8 +68,8 @@ export default function JobsLive(props) {
 }
 
 function JobsLiveView(props) {
-  const [toggleJobReviewed, setToggleJobReviewed] = useState(false);
-  const [toggleJobPublished, setToggleJobPublished] = useState();
+  const liveToggle = useRef(null);
+  const reviewedToggle = useRef(null);
   const [error, setError] = useState("");
   const [value, setValue] = useState(props.jobData?.reviewed);
 
@@ -82,13 +82,13 @@ function JobsLiveView(props) {
     e.preventDefault();
     setError("");
 
-    const newCompanyDoc = doc(getFirestore(), "clientTest", s);
+    const newCompanyDoc = doc(getFirestore(), "jobAdvert", s);
     setError("");
     try {
       const batch = writeBatch(getFirestore());
       batch.set(newCompanyDoc, {
-        reviewed: Boolean(toggleJobReviewed),
-        published: Boolean(toggleJobPublished),
+        reviewed: Boolean(liveToggle),
+        published: Boolean(reviewedToggle),
       });
 
       await batch.commit();
@@ -104,7 +104,7 @@ function JobsLiveView(props) {
     setValue(event.value);
   };
 
-  console.log(toggleJobReviewed);
+  console.log(reviewedToggle);
   console.log(typeof(props.jobData?.reviewed));
 
 
@@ -118,32 +118,33 @@ function JobsLiveView(props) {
         <div>
 
             <div className="jBUQajq field">
-              <label htmlFor="toggleReviewed" className="gNTSvw question">
-                Job Reviewed
-              </label>
-              <div className="cqMAuL">
-                <Toggle
-                  checked={props.jobData?.reviewed}
-                  name="toggleReviewed"
-                  value={toggleJobReviewed}
-                  onChange={(e) => setToggleJobReviewed(e.target.checked)}
-                />
+                <label htmlFor="reviewedCheckbox" className="gNTSvw question">Has the role been reviewed? </label>
+                <div className="cqMAuL">
+                  <input
+                    type="checkbox"
+                    id="reviewedCheckbox"
+                    defaultChecked={props.jobData?.reviewed}
+                    ref={reviewedToggle}
+                    // required
+                    style={{ width: 30 }}
+                  />
+                </div>
               </div>
-            </div>
-{/* 
-            <div className="jBUQajq field">
-              <label htmlFor="toggleJobPublished" className="gNTSvw question">
-                Job Published & live
-              </label>
-              <div className="cqMAuL">
-                <Toggle
-                  checked={props.jobData?.published}
-                  name="toggleJobPublished"
-                  value={true}
-                  onChange={(e) => setToggleJobPublished(e.target.value)}
-                />
+
+
+              <div className="jBUQajq field">
+                <label htmlFor="liveCheckbox" className="gNTSvw question">Do you want the role published (live)? </label>
+                <div className="cqMAuL">
+                  <input
+                    type="checkbox"
+                    id="liveCheckbox"
+                    defaultChecked={props.jobData?.published}
+                    ref={liveToggle}
+                    // required
+                    style={{ width: 30 }}
+                  />
+                </div>
               </div>
-            </div> */}
 
             <button
               type="submit"

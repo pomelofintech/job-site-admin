@@ -628,6 +628,3 @@ function CompanyDetails(props) {
   );
 }
 
-function sectorSelect(props) {
-
-}

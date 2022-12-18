@@ -17,7 +17,7 @@ export default function JobCardFeed({ posts }) {
 
   // useEffect(() => {
   //   const q = query(
-  //     collectionGroup(getFirestore(), "clientTest"),
+  //     collectionGroup(getFirestore(), "jobAdvert"),
   //     where("reviewed", "==", false),
   //     orderBy("addedAt")
   //   );

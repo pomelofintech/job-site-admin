@@ -1,25 +1,55 @@
-import { doc, getFirestore, onSnapshot } from "firebase/firestore";
+import { doc, getFirestore, onSnapshot, serverTimestamp, writeBatch } from "firebase/firestore";
 import { connectStorageEmulator } from "firebase/storage";
 import router, { useRouter } from "next/router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import toast from "react-hot-toast";
 import AuthCheck from "../../components/AuthCheck";
 import Loader from "../../components/Loader";
 import { getCompanyDetailsWithJobAdvert } from "../../lib/firebase";
 
-export default function JobReviewSpec(props) {
+export default function JobReviewSpec() {
+
+
+  return (
+    <AuthCheck>
+      <div id="" className="settings_page min_view">
+        <div className="fXgiup block">
+          <CompanyDetails />
+        </div>
+      </div>
+    </AuthCheck>
+  );
+}
+
+function CompanyDetails(props) {
+  const router = useRouter();
+  const [lastName, setLastName] = useState("");
   const [jobAdvertData, setJobAdvertData] = useState(null);
   const [companyAdvertData, setCompanyAdvertData] = useState(null);
-  const [jobAdvertID, setJobAdvertID] = useState(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
   const { slug } = router.query;
   const s = Array.isArray(slug) ? slug[0] : slug;
+  const [error, setError] = useState("");
+
+
+  const aboutTheCompany = useRef(null);
+  const aboutTheRole = useRef(null);
+  const employmentType = useRef(null);
+  const applicationApplyUrl = useRef(null);
+  const interviewProcess = useRef(null);
+  const jobTitle = useRef(null);
+  const workplaceType = useRef(null);
+  const visaSponsorship = useRef(null);
+  const reviewedToggle = useRef(null);
+
+
+
 
   useEffect(() => {
     const fetchJobAdvertData = async () => {
       setLoading(true);
       try {
-        const responseJobAdvert = doc(getFirestore(), "clientTest", s);
+        const responseJobAdvert = doc(getFirestore(), "jobAdvert", s);
         const unsubscribe = onSnapshot(responseJobAdvert, async (doc) => {
           setJobAdvertData(doc.data());
           // const com = await getCompanyDetailsWithJobAdvert(doc.data().uid);
@@ -37,32 +67,43 @@ export default function JobReviewSpec(props) {
     fetchJobAdvertData();
   }, [getFirestore(), s]);
 
-  return (
-    <AuthCheck>
-      <Loader show={loading} />
 
-      <div id="" className="settings_page min_view">
-        <div className="fXgiup block">
-          {/* <JobAdvertCompanyDetails
-              jobData={jobAdvertData}
-              companyData={companyAdvertData}
-            /> */}
-          <CompanyDetails jobData={jobAdvertData} />
-        </div>
-      </div>
-    </AuthCheck>
-  );
-}
+  // const submit = async (e) => {
+  //   e.preventDefault();
+  //   setError("");
+  //   // if (reviewedToggle === false) {
+  //   //   return setError("Error creating new company, please try again");
+  //   // }
+  //   // console.log(companyName.current.value, backgroundImageUrl.current.value)
 
-function CompanyDetails(props) {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  //   const newCompanyDoc = doc(getFirestore(), "companyDetails", s);
+  //   setError("");
+  //   try {
+  //     // console.log("This is the company name: " + companyName.current.value);
+  //     // console.log("this is the check box: " + reviewedToggle.current.checked);
+  //     // console.log(jobData.companySectors);
+  //     // console.log(selected);
 
-  console.log("hi H");
-  console.log(props.jobData);
-  console.log(props.jobData?.jobTitle);
+
+  //     const batch = writeBatch(getFirestore());
+  //     batch.update(newCompanyDoc, {
+  
+  //       reviewed: reviewedToggle.current.checked,
+  //       slug: s,
+  //       uid: s,
+  //       addedAt: serverTimestamp(),
+  //     });
+
+
+  //     await batch.commit();
+  //   } catch (err) {
+  //     return toast.success("Error updating company details, please try again");
+  //   }
+  //   router.push('/jobs-review');
+  //   return toast.success("Company details updated");
+
+  // };
+  
 
   return (
     <div className="fNgGjC content">
@@ -76,109 +117,107 @@ function CompanyDetails(props) {
               </label>
               <div className="cqMAuL">
                 <input
-                  // defaultValue={doc.email}
-                  id="email"
-                  name="email"
+                  defaultValue={jobAdvertData?.aboutTheCompany}
+                  id="aboutCompnay"
+                  name="aboutCompnay"
                   type="text"
                   className="SDDHw"
-                  value={props.jobData?.jobTitle}
-                  onChange={(e) => setEmail(e.target.value)}
+                  ref={aboutTheCompany}
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="firstName" className="gNTSvw question">
+              <label htmlFor="aboutTheRole" className="gNTSvw question">
                 About the role
               </label>
               <div className="cqMAuL">
-                <input
-                  id="firstName"
-                  name="firstName"
-                  type="text"
+                <textarea
+                  id="aboutTheRole"
+                  name="aboutTheRole"
                   className="SDDHw"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  defaultValue={jobAdvertData?.aboutTheRole}
+                  ref={aboutTheRole}
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
+              <label htmlFor="salary" className="gNTSvw question">
                 Salary bands
               </label>
               <div className="cqMAuL">
                 <input
-                  id="lastName"
-                  name="lastName"
+                  id="salary"
+                  name="salary"
                   type="text"
                   className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  // defaultValue={jobAdvertData?.salary}
+                  // ref={salary}
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
+              <label htmlFor="candidateRequiredSkills" className="gNTSvw question">
                 Candidate Required Skills
               </label>
               <div className="cqMAuL">
                 <input
-                  id="lastName"
-                  name="lastName"
+                  id="candidateRequiredSkills"
+                  name="candidateRequiredSkills"
                   type="text"
                   className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  // defaultValue={jobAdvertData?.candidateRequiredSkills}
+                  // ref={candidateRequiredSkills}
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
+              <label htmlFor="candidateSkills" className="gNTSvw question">
                 Candidate Skills
               </label>
               <div className="cqMAuL">
                 <input
-                  id="lastName"
-                  name="lastName"
+                  id="candidateSkills"
+                  name="candidateSkills"
                   type="text"
                   className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  // defaultValue={jobAdvertData?.candidateSkills}
+                  // ref={candidateSkills}
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
+              <label htmlFor="companyBenefits" className="gNTSvw question">
                 Company Benefits
               </label>
               <div className="cqMAuL">
                 <input
-                  id="lastName"
-                  name="lastName"
+                  id="companyBenefits"
+                  name="companyBenefits"
                   type="text"
                   className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  // defaultValue={jobAdvertData?.companyBenefits}
+                  // ref={companyBenefits}
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
+              <label htmlFor="employmentType" className="gNTSvw question">
                 Employment type
               </label>
               <div className="cqMAuL">
                 <input
-                  id="lastName"
-                  name="lastName"
+                  id="employmentType"
+                  name="employmentType"
                   type="text"
                   className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  defaultValue={jobAdvertData?.employmentType}
+                  ref={employmentType}
                 />
               </div>
             </div>
@@ -193,40 +232,40 @@ function CompanyDetails(props) {
                   name="lastName"
                   type="text"
                   className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  // defaultValue={jobAdvertData?.}
+                  // ref={}
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
+              <label htmlFor="interviewProcess" className="gNTSvw question">
                 Interview process
               </label>
               <div className="cqMAuL">
                 <input
-                  id="lastName"
-                  name="lastName"
+                  id="interviewProcess"
+                  name="interviewProcess"
                   type="text"
                   className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  defaultValue={jobAdvertData?.interviewProcess}
+                  ref={interviewProcess}
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
-                job title
+              <label htmlFor="jobTitle" className="gNTSvw question">
+                Job title
               </label>
               <div className="cqMAuL">
                 <input
-                  id="lastName"
-                  name="lastName"
+                  id="jobTitle"
+                  name="jobTitle"
                   type="text"
                   className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  defaultValue={jobAdvertData?.jobTitle}
+                  ref={jobTitle}
                 />
               </div>
             </div>
@@ -241,8 +280,8 @@ function CompanyDetails(props) {
                   name="lastName"
                   type="text"
                   className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  // defaultValue={jobAdvertData?.employmentType}
+                  // ref={employmentType}
                 />
               </div>
             </div>
@@ -257,15 +296,31 @@ function CompanyDetails(props) {
                   name="lastName"
                   type="text"
                   className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  // defaultValue={jobAdvertData?.employmentType}
+                  // ref={employmentType}
+                />
+              </div>
+            </div>
+
+            <div className="jBUQajq field">
+              <label htmlFor="workplaceType" className="gNTSvw question">
+                Workplace type
+              </label>
+              <div className="cqMAuL">
+                <input
+                  id="workplaceType"
+                  name="workplaceType"
+                  type="text"
+                  className="SDDHw"
+                  defaultValue={jobAdvertData?.workplaceType}
+                  ref={workplaceType}
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
               <label htmlFor="lastName" className="gNTSvw question">
-                Remote working
+                Tech stack
               </label>
               <div className="cqMAuL">
                 <input
@@ -273,40 +328,24 @@ function CompanyDetails(props) {
                   name="lastName"
                   type="text"
                   className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  // defaultValue={jobAdvertData?.employmentType}
+                  // ref={employmentType}
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
-                tech stack
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
+              <label htmlFor="visaSponsorship" className="gNTSvw question">
                 Visa sponsorship
               </label>
               <div className="cqMAuL">
                 <input
-                  id="lastName"
-                  name="lastName"
+                  id="visaSponsorship"
+                  name="visaSponsorship"
                   type="text"
                   className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  defaultValue={jobAdvertData?.visaSponsorship}
+                  ref={visaSponsorship}
                 />
               </div>
             </div>
@@ -321,40 +360,40 @@ function CompanyDetails(props) {
                   name="lastName"
                   type="text"
                   className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  // defaultValue={jobAdvertData?.}
+                  // ref={}
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
+              <label htmlFor="applicationApplyUrl" className="gNTSvw question">
                 Application URL
               </label>
               <div className="cqMAuL">
                 <input
-                  id="lastName"
-                  name="lastName"
+                  id="applicationApplyUrl"
+                  name="applicationApplyUrl"
                   type="text"
                   className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  defaultValue={jobAdvertData?.applicationApplyUrl}
+                  ref={applicationApplyUrl}
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
+              <label htmlFor="reviewedCheckbox" className="gNTSvw question">
                 Role Reviewed
               </label>
               <div className="cqMAuL">
                 <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  className="SDDHw"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  type="checkbox"
+                  id="reviewedCheckbox"
+                  defaultChecked={jobAdvertData?.reviewed}
+                  ref={reviewedToggle}
+                  // required
+                  style={{ width: 30 }}
                 />
               </div>
             </div>

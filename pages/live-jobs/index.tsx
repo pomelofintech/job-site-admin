@@ -12,8 +12,8 @@ import {
   collectionGroup,
 } from "firebase/firestore";
 import { auth } from "../../lib/firebase";
-import JobCardFeed from "../../components/JobCardFeed";
 import { useRouter } from "next/router";
+import JobLiveCardFeed from "../../components/JobLiveCardFeed";
 
 
 export default function Favourites() {
@@ -41,7 +41,7 @@ function LiveRoles() {
   return (
     <div id="" className="settings_page min_view">
       <div className="fXgiup block">
-        <h2 className="settings-title">Jobs to be reviewed</h2>
+        <h2 className="settings-title">Jobs reviewed & live</h2>
         {/* <button onClick={testNew}>testNew</button> */}
       </div>
     </div>
@@ -55,7 +55,7 @@ function LiveRolesList() {
 
   const t = async () => {
     const q = query(
-      collectionGroup(getFirestore(), "clientTest"),
+      collectionGroup(getFirestore(), "jobAdvert"),
       where("reviewed", "==", true),
       where("published", "==", true),
       orderBy("addedAt")
@@ -78,7 +78,7 @@ function LiveRolesList() {
     <div className="search-page-view">
       <div className="ais-Hits">
         <div className="ais-Hits-list">
-          <JobCardFeed posts={pItem} />
+          <JobLiveCardFeed posts={pItem} />
         </div>
       </div>
     </div>

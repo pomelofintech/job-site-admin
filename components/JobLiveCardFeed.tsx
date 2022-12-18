@@ -6,7 +6,7 @@ import Image from 'next/image'
 import router from "next/router";
 
 
-export default function JobCardFeed({ posts }) {
+export default function JobLiveCardFeed({ posts }) {
   const uid = auth.currentUser.uid;
   let [pItem, setpostItem] = useState(null);
 
@@ -47,7 +47,7 @@ export default function JobCardFeed({ posts }) {
 function PostItem({ post }) {
   // Navive method to calculate word count and read time
   const getNote = async (jobId) => {
-    router.push(`/jobs-review/${jobId}`);
+    router.push(`/live-jobs/${jobId}`);
   };
 
   return (
