@@ -1,4 +1,4 @@
-import { doc, getDoc, getFirestore, onSnapshot, serverTimestamp, writeBatch } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, getFirestore, onSnapshot, serverTimestamp, writeBatch } from "firebase/firestore";
 import { connectStorageEmulator } from "firebase/storage";
 import router, { useRouter } from "next/router";
 import { useState, useEffect, useRef } from "react";
@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import Select, { components } from "react-select";
 import makeAnimated from "react-select/animated";
 import React from "react";
+import { renderToHTML } from "next/dist/server/render";
 
 
 
@@ -55,33 +56,66 @@ export default function JobReviewSpec() {
   const [isLoading, setLoading] = useState(true);
   const router = useRouter();
   const { slug } = router.query;
-  const s = Array.isArray(slug) ? slug[0] : slug;
+  // const s = Array.isArray(slug) ? slug[0] : slug;
+  // const [slug, setSlug] = useState(null);
 
 
-  useEffect(() => {
-    console.log("This ran again");
-    fetchJobAdvertData();
-    setLoading(false);
-  }, [getFirestore(), s]);
-
-  const fetchJobAdvertData = async () => {
-    try {
-      const responseJobAdvert = doc(getFirestore(), "companyDetails", s);
-      const subscriber = onSnapshot(responseJobAdvert, async (doc) => {
-        setJobAdvertData(doc.data());
-      });
-
-      return () => subscriber();
-      // }
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  // useEffect(() => {
+  //   setSlug(new URLSearchParams(window.location.search).get("slug"));
+  // });
 
 
-  console.log("this is the first load" + jobAdvertData);
-  console.log(jobAdvertData?.companySectors);
+  //   const getNote = async (s) => {
+  //     const noteSnapshot = await getDoc(doc(getFirestore(), "companyDetails", s));
+  //     if (noteSnapshot.exists()) {
+  //         console.log("This is companyDetails data ");
+  //         console.log(noteSnapshot.data());
+  //         return noteSnapshot.data();
+  //     } else {
+  //         console.log("Note doesn't exist");
+  //     }
+  // };
 
+  // const getUserdetails = async (slug) => {
+
+  //   console.log("test");
+
+  //   const docRef = doc(getFirestore(), "companyDetails", slug)
+  //   const docSnap = await getDoc(docRef)
+
+  //   if (docSnap.exists()) {
+  //     console.log("Document data:", docSnap.data())
+  //     // setUser(docSnap.data())
+  //   } else {
+  //     // doc.data() will be undefined in this case
+  //     console.log("No such document!")
+  //   }
+  // }
+
+  // getUserdetails(slug);
+
+  // useEffect(() => {
+  //   console.log("This ran again");
+  //   // fetchJobAdvertData(s);
+  //   // getNote(s);
+  //   getUserdetails(slug);
+  //   setLoading(false);
+  // }, [slug]);
+
+
+  //   const fetchJobAdvertData = async (s) => {
+  //     try {
+  //       const responseJobAdvert = doc(getFirestore(), "companyDetails", s);
+  //       const subscriber = onSnapshot(responseJobAdvert, async (doc) => {
+  //         setJobAdvertData(doc.data());
+  //       });
+
+  //       return () => subscriber();
+
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   };
 
 
   return (
@@ -92,7 +126,8 @@ export default function JobReviewSpec() {
               jobData={jobAdvertData}
               companyData={companyAdvertData}
             /> */}
-          {!isLoading ? <CompanyDetails jobData={jobAdvertData} /> : <Loader show={isLoading} />}
+          {/* {!isLoading ? <CompanyDetails jobData={jobAdvertData} /> : <Loader show={isLoading} />} */}
+          <CompanyDetails />
         </div>
       </div>
     </AuthCheck>
@@ -109,7 +144,6 @@ function CompanyDetails(props) {
   const instagramUrl = useRef(null);
   const facebookUrl = useRef(null);
   const linkedinUrl = useRef(null);
-  const [selected, setSelected] = useState([]);
   const companyLogoUrl = useRef(null);
   const addressLn1 = useRef(null);
   const addressLn2 = useRef(null);
@@ -120,40 +154,112 @@ function CompanyDetails(props) {
 
   const SELECT_VALUE_KEY = "compnanySec";
   const animatedComponents = makeAnimated();
+  const [isLoading, setLoading] = useState(true);
+  const [jobData, setJobData] = useState(null);
+  const [selected, setSelected] = useState([null]);
+
+
 
   const { slug } = router.query;
   const s = Array.isArray(slug) ? slug[0] : slug;
 
-  // used for the drop down
-  const handleSelect = (options: readonly { label: string }[]) => {
-    const selectedInput = options.map((options) => options.label);
-    setSelected(selectedInput);
-  };
+  const getUserdetails = async (slug) => {
 
-  const banana = [{ value: "32", label: "Lifestyle" }];
+    console.log("test");
+
+    const docRef = doc(getFirestore(), "companyDetails", slug)
+    const docSnap = await getDoc(docRef)
+
+    if (docSnap.exists()) {
+      console.log("Document data:", docSnap.data())
+      setJobData(docSnap.data());
 
 
 
-  console.log(props.jobData?.companySectors);
 
-  if (localStorage) {
-    localStorage.setItem(SELECT_VALUE_KEY, JSON.stringify(props.jobData?.companySectors));
+    //   let r = docSnap.data().companySectors;
+
+    //  let newArray = r.data.map((item) => {
+    //     return {key: item.id, value: item.name}
+    //   })
+
+
+      // let newArray = docSnap.data().companySectors.data.map((item) => {
+      //   return {key: item.id, value: item.name}
+      // })
+
+      // console.log(newArray);
+
+      // const banana = [{ value: "32", label: "Lifestyle" }, { value: "33", label: "robz" }];
+      // // const banana = ["Lifestyle", "robz"];
+
+      // setSelected(banana);
+
+
+      // setUser(docSnap.data())
+    } else {
+      // doc.data() will be undefined in this case
+      console.log("No such document!")
+    }
   }
 
-  const lastSelected = JSON.parse(
-    localStorage.getItem(SELECT_VALUE_KEY) ?? "[]"
-  );
-  setSelected(lastSelected);
-
+  // getUserdetails(slug);
 
   useEffect(() => {
-    
-    const lastSelected = JSON.parse(
-      localStorage.getItem(SELECT_VALUE_KEY) ?? "[]"
-    );
-    setSelected(lastSelected);
-  }, []);
+    console.log("This ran again");
+    // fetchJobAdvertData(s);
+    // getNote(s);
+    getUserdetails(slug);
+    setLoading(false);
+  }, [slug]);
 
+  // console.log("selected object - data added after useeffect " + selected)
+  // console.log("selected typeof 2 " + typeof (selected));
+  // console.log(selected);
+
+
+  // used for the drop down
+  const handleSelect = (options: readonly { value: string, label: string }[]) => {
+
+    const selectedInput = options.map((options) => options.label);
+
+    // console.log("selected typeof " + typeof (selected));
+    // console.log("selectedInput typeof " + typeof (selectedInput));
+
+
+    // console.log("Array current selected value from firebase " + selected);
+    // console.log("Array selected value" + selectedInput);
+    console.log("before");
+    console.log(selectedInput);
+    setSelected(selectedInput);
+    console.log("after");
+    console.log(selected);
+
+
+    // console.log("This is an object " + Object.keys(selectedInput));
+    // console.log("This is an object " + Object.values(selectedInput));
+
+    // setSelected(selected => ({
+    //   ...selected,
+    //   ...selectedInput
+    // }));
+
+    // setSelected(selectedInput);
+    // setSelected(selectedInput);
+
+
+    // setSelected(selected => [...selected, Object.values(selectedInput)]);
+
+    // console.log(selected.flat(1));
+
+
+    console.log("New selected object ")
+    console.log(selected);
+    //  setSelected(current => [...current,selectedInput] );
+
+    // setSelected(current => [...current,selectedInput] );
+
+  };
 
 
 
@@ -170,203 +276,218 @@ function CompanyDetails(props) {
     try {
       console.log("This is the company name: " + companyName.current.value);
       console.log("this is the check box: " + reviewedToggle.current.checked);
-      console.log(props.jobData?.companySectors);
+      console.log(jobData.companySectors);
       console.log(selected);
 
 
-      // const batch = writeBatch(getFirestore());
-      // batch.update(newCompanyDoc, {
-      //   companyName: companyName.current.value,
-      //   backgroundImage: backgroundImageUrl.current.value,
-      //   companyMission: companyMission.current.value,
-      //   website: wesbiteUrl.current.value,
-      //   twitter: twitterUrl.current.value,
-      //   instagram: instagramUrl.current.value,
-      //   facebook: facebookUrl.current.value,
-      //   linkedin: linkedinUrl.current.value,
-      //   logo: companyLogoUrl.current.value,
-      //   companySectors: selectedSectors, // needs to be saved as array
-      //   addressLn1: addressLn1.current.value,
-      //   addressLn2: addressLn2.current.value,
-      //   city: city.current.value,
-      //   postCode: postCode.current.value,
-      //   reviewed: reviewedToggle.current.checked,
-      //   slug: s,
-      //   uid: s,
-      //   addedAt: serverTimestamp(),
-      //   companyCreation: true,
-      // });
+      const batch = writeBatch(getFirestore());
+      batch.update(newCompanyDoc, {
+        companyName: companyName.current.value,
+        backgroundImage: backgroundImageUrl.current.value,
+        companyMission: companyMission.current.value,
+        website: wesbiteUrl.current.value,
+        twitter: twitterUrl.current.value,
+        instagram: instagramUrl.current.value,
+        facebook: facebookUrl.current.value,
+        linkedin: linkedinUrl.current.value,
+        logo: companyLogoUrl.current.value,
+        companySectors: selected, // needs to be saved as array
+        addressLn1: addressLn1.current.value,
+        addressLn2: addressLn2.current.value,
+        city: city.current.value,
+        postCode: postCode.current.value,
+        reviewed: reviewedToggle.current.checked,
+        slug: s,
+        uid: s,
+        addedAt: serverTimestamp(),
+        companyCreation: true,
+      });
 
 
-      // await batch.commit();
+      await batch.commit();
     } catch (err) {
       return toast.success("Error creating new company, please try again");
     }
-    // router.push('/company-details');
+    router.push('/company-details');
     return toast.success("New company added");
 
   };
-  return (
-    <div className="fNgGjC content">
-      <h2 className="settings-title block_title">Company Details</h2>
-      <div className="eHIaoM">
-        <div>
-          <form onSubmit={submit}>
 
-            <div className="jBUQajq field">
-              <label htmlFor="backgroundImageUrl" className="gNTSvw question">
-                Background Image URL - Upload image to firebase storage manaually <span style={{ color: "red" }}> * </span>
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="backgroundImageUrl"
-                  name="backgroundImageUrl"
-                  type="text"
-                  className="SDDHw"
-                  // this works only on input field only
-                  defaultValue={props.jobData?.backgroundImage}
-                  ref={backgroundImageUrl}
-                  autoComplete="off"
-                  required
-                />
+  // console.log("bobz" + jobData?.companySectors);
+
+
+
+
+
+  // const lastSelected = JSON.parse(
+  //   localStorage.getItem(SELECT_VALUE_KEY) ?? "[]"
+  // );
+  // setSelected(lastSelected);
+
+
+  return (<>
+    {isLoading ? <Loader show={isLoading} /> : (
+
+      <div className="fNgGjC content">
+        <h2 className="settings-title block_title">Company Details</h2>
+        <div className="eHIaoM">
+          <div>
+            <form onSubmit={submit}>
+
+              <div className="jBUQajq field">
+                <label htmlFor="backgroundImageUrl" className="gNTSvw question">
+                  Background Image URL - Upload image to firebase storage manaually <span style={{ color: "red" }}> * </span>
+                </label>
+                <div className="cqMAuL">
+                  <input
+                    id="backgroundImageUrl"
+                    name="backgroundImageUrl"
+                    type="text"
+                    className="SDDHw"
+                    // this works only on input field only
+                    defaultValue={jobData?.backgroundImage}
+                    ref={backgroundImageUrl}
+                    autoComplete="off"
+                    required
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="jBUQajq field">
-              <label htmlFor="companyLogoUrl" className="gNTSvw question">
-                Company Logo URL - manaually upload to firebase storage <span style={{ color: "red" }}> * </span>
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="companyLogoUrl"
-                  name="companyLogoUrl"
-                  type="text"
-                  className="SDDHw"
-                  defaultValue={props.jobData?.logo}
-                  ref={companyLogoUrl}
-                  autoComplete="off"
-                  required
-                />
+              <div className="jBUQajq field">
+                <label htmlFor="companyLogoUrl" className="gNTSvw question">
+                  Company Logo URL - manaually upload to firebase storage <span style={{ color: "red" }}> * </span>
+                </label>
+                <div className="cqMAuL">
+                  <input
+                    id="companyLogoUrl"
+                    name="companyLogoUrl"
+                    type="text"
+                    className="SDDHw"
+                    defaultValue={jobData?.logo}
+                    ref={companyLogoUrl}
+                    autoComplete="off"
+                    required
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="jBUQajq field">
-              <label htmlFor="companyName" className="gNTSvw question">
-                Company Name <span style={{ color: "red" }}> * </span>
-              </label>
-              <div className="cqMAuL">
-                <textarea
-                  id="companyName"
-                  name="companyName"
-                  className="SDDHw"
-                  defaultValue={props.jobData?.companyName}
-                  ref={companyName}
-                  autoComplete="off"
-                  required
-                />
+              <div className="jBUQajq field">
+                <label htmlFor="companyName" className="gNTSvw question">
+                  Company Name <span style={{ color: "red" }}> * </span>
+                </label>
+                <div className="cqMAuL">
+                  <textarea
+                    id="companyName"
+                    name="companyName"
+                    className="SDDHw"
+                    defaultValue={jobData?.companyName}
+                    ref={companyName}
+                    autoComplete="off"
+                    required
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="jBUQajq field">
-              <label htmlFor="companyMission" className="gNTSvw question">
-                Company Mission <span style={{ color: "red" }}> * </span>
-              </label>
-              <div className="cqMAuL">
-                <textarea
-                  id="companyMission"
-                  name="companyMission"
-                  className="SDDHw"
-                  defaultValue={props.jobData?.companyMission}
-                  ref={companyMission}
-                  autoComplete="off"
-                  required
-                />
+              <div className="jBUQajq field">
+                <label htmlFor="companyMission" className="gNTSvw question">
+                  Company Mission <span style={{ color: "red" }}> * </span>
+                </label>
+                <div className="cqMAuL">
+                  <textarea
+                    id="companyMission"
+                    name="companyMission"
+                    className="SDDHw"
+                    defaultValue={jobData?.companyMission}
+                    ref={companyMission}
+                    autoComplete="off"
+                    required
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="jBUQajq field">
-              <label htmlFor="websiteUrl" className="gNTSvw question">
-                Website URL <span style={{ color: "red" }}> * </span>
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="websiteUrl"
-                  name="websiteUrl"
-                  type="text"
-                  className="SDDHw"
-                  defaultValue={props.jobData?.website}
-                  ref={wesbiteUrl}
-                  autoComplete="off"
-                  required
-                />
+              <div className="jBUQajq field">
+                <label htmlFor="websiteUrl" className="gNTSvw question">
+                  Website URL <span style={{ color: "red" }}> * </span>
+                </label>
+                <div className="cqMAuL">
+                  <input
+                    id="websiteUrl"
+                    name="websiteUrl"
+                    type="text"
+                    className="SDDHw"
+                    defaultValue={jobData?.website}
+                    ref={wesbiteUrl}
+                    autoComplete="off"
+                    required
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="jBUQajq field">
-              <label htmlFor="twitterUrl" className="gNTSvw question">
-                Twitter URL
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="twitterUrl"
-                  name="twitterUrl"
-                  type="text"
-                  className="SDDHw"
-                  defaultValue={props.jobData?.twitter}
-                  ref={twitterUrl}
-                />
+              <div className="jBUQajq field">
+                <label htmlFor="twitterUrl" className="gNTSvw question">
+                  Twitter URL
+                </label>
+                <div className="cqMAuL">
+                  <input
+                    id="twitterUrl"
+                    name="twitterUrl"
+                    type="text"
+                    className="SDDHw"
+                    defaultValue={jobData?.twitter}
+                    ref={twitterUrl}
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="jBUQajq field">
-              <label htmlFor="instagramUrl" className="gNTSvw question">
-                Instagram URL
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="instagramUrl"
-                  name="instagramUrl"
-                  type="text"
-                  className="SDDHw"
-                  defaultValue={props.jobData?.instagram}
-                  ref={instagramUrl}
-                />
+              <div className="jBUQajq field">
+                <label htmlFor="instagramUrl" className="gNTSvw question">
+                  Instagram URL
+                </label>
+                <div className="cqMAuL">
+                  <input
+                    id="instagramUrl"
+                    name="instagramUrl"
+                    type="text"
+                    className="SDDHw"
+                    defaultValue={jobData?.instagram}
+                    ref={instagramUrl}
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="jBUQajq field">
-              <label htmlFor="facebookUrl" className="gNTSvw question">
-                Facebook URL
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="facebookUrl"
-                  name="facebookUrl"
-                  type="text"
-                  className="SDDHw"
-                  defaultValue={props.jobData?.facebook}
-                  ref={facebookUrl}
-                />
+              <div className="jBUQajq field">
+                <label htmlFor="facebookUrl" className="gNTSvw question">
+                  Facebook URL
+                </label>
+                <div className="cqMAuL">
+                  <input
+                    id="facebookUrl"
+                    name="facebookUrl"
+                    type="text"
+                    className="SDDHw"
+                    defaultValue={jobData?.facebook}
+                    ref={facebookUrl}
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="jBUQajq field">
-              <label htmlFor="linkedinUrl" className="gNTSvw question">
-                Linkedin URL
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="linkedinUrl"
-                  name="linkedinUrl"
-                  type="text"
-                  className="SDDHw"
-                  defaultValue={props.jobData?.linkedin}
-                  ref={linkedinUrl}
-                />
+              <div className="jBUQajq field">
+                <label htmlFor="linkedinUrl" className="gNTSvw question">
+                  Linkedin URL
+                </label>
+                <div className="cqMAuL">
+                  <input
+                    id="linkedinUrl"
+                    name="linkedinUrl"
+                    type="text"
+                    className="SDDHw"
+                    defaultValue={jobData?.linkedin}
+                    ref={linkedinUrl}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* <div className="jBUQajq field">
+              {/* <div className="jBUQajq field">
               <label htmlFor="companySectors" className="gNTSvw question">
                 Company Sectors
               </label>
@@ -376,129 +497,134 @@ function CompanyDetails(props) {
                   name="companySectors"
                   type="text"
                   className="SDDHw"
-                  defaultValue={props.jobData?.companySectors}
+                  defaultValue={jobData?.companySectors}
                   ref={companySectors}
                 />
               </div>
             </div> */}
 
-            <div className="jBUQajq field">
-              <label htmlFor="companySectors" className="gNTSvw question">
-                Company Sectors <span style={{ color: "red" }}> * </span>
-              </label>
-              <div className="cqMAuL">
-                <Select
-                  isMulti={true}
-                  name="colors"
-                  options={data}
-                  className="basic-multi-select"
-                  classNamePrefix="select"
-                  isSearchable
-                  closeMenuOnSelect={false}
-                  hideSelectedOptions={true}
-                  components={animatedComponents}
-                  onChange={handleSelect}
-                  value={selected}
-                  required
-                />
+              <div className="jBUQajq field">
+                <label htmlFor="companySectors" className="gNTSvw question">
+                  Company Sectors 
+                   {/* <span style={{ color: "red" }}> * </span> */}
+                </label>
+                <div className="cqMAuL">
+                  <Select
+                    isMulti={true}
+                    name="colors"
+                    options={data}
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                    isSearchable
+                    closeMenuOnSelect={false}
+                    hideSelectedOptions={true}
+                    components={animatedComponents}
+                    onChange={handleSelect}
+                    // onChange={handleChange}
+
+                    // value={selected}
+                    // required
+                  />
+                </div>
               </div>
-            </div>
 
 
 
-            <div className="jBUQajq field">
-              <label htmlFor="addressLn1" className="gNTSvw question">
-                Address line 1 <span style={{ color: "red" }}> * </span>
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="addressLn1"
-                  name="addressLn1"
-                  type="text"
-                  className="SDDHw"
-                  defaultValue={props.jobData?.addressLn1}
-                  ref={addressLn1}
-                  autoComplete="off"
-                  required
-                />
+              <div className="jBUQajq field">
+                <label htmlFor="addressLn1" className="gNTSvw question">
+                  Address line 1 <span style={{ color: "red" }}> * </span>
+                </label>
+                <div className="cqMAuL">
+                  <input
+                    id="addressLn1"
+                    name="addressLn1"
+                    type="text"
+                    className="SDDHw"
+                    defaultValue={jobData?.addressLn1}
+                    ref={addressLn1}
+                    autoComplete="off"
+                    required
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="jBUQajq field">
-              <label htmlFor="addressLn2" className="gNTSvw question">
-                Address line 2
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="addressLn2"
-                  name="addressLn2"
-                  type="text"
-                  className="SDDHw"
-                  defaultValue={props.jobData?.addressLn2}
-                  ref={addressLn2}
-                />
+              <div className="jBUQajq field">
+                <label htmlFor="addressLn2" className="gNTSvw question">
+                  Address line 2
+                </label>
+                <div className="cqMAuL">
+                  <input
+                    id="addressLn2"
+                    name="addressLn2"
+                    type="text"
+                    className="SDDHw"
+                    defaultValue={jobData?.addressLn2}
+                    ref={addressLn2}
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="jBUQajq field">
-              <label htmlFor="city" className="gNTSvw question">
-                City <span style={{ color: "red" }}> * </span>
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="city"
-                  name="city"
-                  type="text"
-                  className="SDDHw"
-                  defaultValue={props.jobData?.city}
-                  ref={city}
-                  autoComplete="off"
-                  required
-                />
+              <div className="jBUQajq field">
+                <label htmlFor="city" className="gNTSvw question">
+                  City <span style={{ color: "red" }}> * </span>
+                </label>
+                <div className="cqMAuL">
+                  <input
+                    id="city"
+                    name="city"
+                    type="text"
+                    className="SDDHw"
+                    defaultValue={jobData?.city}
+                    ref={city}
+                    autoComplete="off"
+                    required
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="jBUQajq field">
-              <label htmlFor="postCode" className="gNTSvw question">
-                Post code <span style={{ color: "red" }}> * </span>
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="postCode"
-                  name="postCode"
-                  type="text"
-                  className="SDDHw"
-                  defaultValue={props.jobData?.postCode}
-                  ref={postCode}
-                  autoComplete="off"
-                  required
-                />
+              <div className="jBUQajq field">
+                <label htmlFor="postCode" className="gNTSvw question">
+                  Post code <span style={{ color: "red" }}> * </span>
+                </label>
+                <div className="cqMAuL">
+                  <input
+                    id="postCode"
+                    name="postCode"
+                    type="text"
+                    className="SDDHw"
+                    defaultValue={jobData?.postCode}
+                    ref={postCode}
+                    autoComplete="off"
+                    required
+                  />
+                </div>
               </div>
-            </div>
-            <div className="jBUQajq field">
-              <label htmlFor="reviewedCheckbox" className="gNTSvw question">Company information reviewed? <span style={{ color: "red" }}> * </span></label>
-              <div className="cqMAuL">
-                <input
-                  type="checkbox"
-                  id="reviewedCheckbox"
-                  defaultChecked={props.jobData?.reviewedToggle}
-                  ref={reviewedToggle}
-                  required
-                  style={{ width: 30 }}
-                />
+              <div className="jBUQajq field">
+                <label htmlFor="reviewedCheckbox" className="gNTSvw question">Company information reviewed? <span style={{ color: "red" }}> * </span></label>
+                <div className="cqMAuL">
+                  <input
+                    type="checkbox"
+                    id="reviewedCheckbox"
+                    defaultChecked={jobData?.reviewed}
+                    ref={reviewedToggle}
+                    // required
+                    style={{ width: 30 }}
+                  />
+                </div>
               </div>
-            </div>
-            <button
-              type="submit"
-              value="Submit"
-              className="set-btn"
-            >
-              Update company data
-            </button>
-          </form>
+              <button
+                type="submit"
+                value="Submit"
+                className="set-btn"
+              >
+                Update company data
+              </button>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
+    )}
+  </>
   );
 }
 
