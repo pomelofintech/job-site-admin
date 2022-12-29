@@ -50,6 +50,11 @@ function PostItem({ post }) {
     router.push(`/live-jobs/${jobId}`);
   };
 
+  console.log("post " + post);
+  console.log(post);
+  console.log(post.jobTitle);
+
+
   return (
     <div className="ais-Hits-item">
 

@@ -1,4 +1,10 @@
-import { doc, getFirestore, onSnapshot, serverTimestamp, writeBatch } from "firebase/firestore";
+import {
+  doc,
+  getFirestore,
+  onSnapshot,
+  serverTimestamp,
+  writeBatch,
+} from "firebase/firestore";
 import { connectStorageEmulator } from "firebase/storage";
 import router, { useRouter } from "next/router";
 import { useState, useEffect, useRef } from "react";
@@ -6,10 +12,44 @@ import toast from "react-hot-toast";
 import AuthCheck from "../../components/AuthCheck";
 import Loader from "../../components/Loader";
 import { getCompanyDetailsWithJobAdvert } from "../../lib/firebase";
+import Creatable from "react-select/creatable";
+
+const experienceLevelList = [
+  {
+    value: "Internship",
+    label: "Internship",
+  },
+  {
+    value: "Entry/Graduate",
+    label: "Entry/Graduate",
+  },
+  {
+    value: "Junior",
+    label: "Junior",
+  },
+  {
+    value: "Mid",
+    label: "Mid",
+  },
+  {
+    value: "Senior",
+    label: "Senior",
+  },
+  {
+    value: "Lead",
+    label: "Lead",
+  },
+  {
+    value: "Principle",
+    label: "Principle",
+  },
+  {
+    value: "Managment",
+    label: "Managment",
+  },
+];
 
 export default function JobReviewSpec() {
-
-
   return (
     <AuthCheck>
       <div id="" className="settings_page min_view">
@@ -23,14 +63,13 @@ export default function JobReviewSpec() {
 
 function CompanyDetails(props) {
   const router = useRouter();
-  const [lastName, setLastName] = useState("");
+  const [lastName, setLastName] = useState(null);
   const [jobAdvertData, setJobAdvertData] = useState(null);
   const [companyAdvertData, setCompanyAdvertData] = useState(null);
   const [loading, setLoading] = useState(true);
   const { slug } = router.query;
   const s = Array.isArray(slug) ? slug[0] : slug;
   const [error, setError] = useState("");
-
 
   const aboutTheCompany = useRef(null);
   const aboutTheRole = useRef(null);
@@ -42,8 +81,7 @@ function CompanyDetails(props) {
   const visaSponsorship = useRef(null);
   const reviewedToggle = useRef(null);
 
-
-
+  const addedAt = useRef(null);
 
   useEffect(() => {
     const fetchJobAdvertData = async () => {
@@ -67,43 +105,85 @@ function CompanyDetails(props) {
     fetchJobAdvertData();
   }, [getFirestore(), s]);
 
+  const [options1, setOptions] = useState([""]);
 
-  // const submit = async (e) => {
-  //   e.preventDefault();
-  //   setError("");
-  //   // if (reviewedToggle === false) {
-  //   //   return setError("Error creating new company, please try again");
-  //   // }
-  //   // console.log(companyName.current.value, backgroundImageUrl.current.value)
+  useEffect(() => {
+    const arr = [];
 
-  //   const newCompanyDoc = doc(getFirestore(), "companyDetails", s);
-  //   setError("");
-  //   try {
-  //     // console.log("This is the company name: " + companyName.current.value);
-  //     // console.log("this is the check box: " + reviewedToggle.current.checked);
-  //     // console.log(jobData.companySectors);
-  //     // console.log(selected);
+    const docRef = doc(
+      getFirestore(),
+      "jobAdvertDropdownData",
+      "YUXBMQO8KCd57cRz3lyD"
+    );
+    // const arr = querySnapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
+    // setDocuments(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
+
+    const unsubscribe = onSnapshot(docRef, async (doc) => {
+      // console.log({...doc.data(), id: doc.id})
+      // setLastName(doc.data());
+      for (const key in doc.data().techStack) {
+        const value = doc.data().techStack[key];
+        console.log(key, value);
+        return arr.push({ value: value, label: value });
+      }
+
+    });
+    setOptions(arr);
+
+    return () => unsubscribe();
+  }, [slug]);
 
 
-  //     const batch = writeBatch(getFirestore());
-  //     batch.update(newCompanyDoc, {
-  
-  //       reviewed: reviewedToggle.current.checked,
-  //       slug: s,
-  //       uid: s,
-  //       addedAt: serverTimestamp(),
+
+  console.log("last name");
+  console.log(options1);
+  // console.log(lastName?.techStack);
+
+  // useEffect(() => {
+  //   const getData = async () => {
+  //     const arr = [];
+  //     await axios.get(url).then((res) => {
+  //       let result = res.data.items;
+  //       result.map((user) => {
+  //         return arr.push({ value: user.login, label: user.login });
+  //       });
+  //       setOptions(arr);
   //     });
+  //   };
+  //   getData();
+  // }, []);
 
+  const submit = async (e) => {
+    e.preventDefault();
+    setError("");
+    // if (reviewedToggle === false) {
+    //   return setError("Error creating new company, please try again");
+    // }
+    // console.log(companyName.current.value, backgroundImageUrl.current.value)
 
-  //     await batch.commit();
-  //   } catch (err) {
-  //     return toast.success("Error updating company details, please try again");
-  //   }
-  //   router.push('/jobs-review');
-  //   return toast.success("Company details updated");
+    const newCompanyDoc = doc(getFirestore(), "companyDetails", s);
+    setError("");
+    try {
+      // console.log("This is the company name: " + companyName.current.value);
+      // console.log("this is the check box: " + reviewedToggle.current.checked);
+      // console.log(jobData.companySectors);
+      // console.log(selected);
 
-  // };
-  
+      const batch = writeBatch(getFirestore());
+      batch.update(newCompanyDoc, {
+        reviewed: reviewedToggle.current.checked,
+        slug: s,
+        uid: s,
+        addedAt: serverTimestamp(),
+      });
+
+      await batch.commit();
+    } catch (err) {
+      return toast.success("Error updating company details, please try again");
+    }
+    router.push("/jobs-review");
+    return toast.success("Company details updated");
+  };
 
   return (
     <div className="fNgGjC content">
@@ -116,11 +196,10 @@ function CompanyDetails(props) {
                 About the company
               </label>
               <div className="cqMAuL">
-                <input
+                <textarea
                   defaultValue={jobAdvertData?.aboutTheCompany}
                   id="aboutCompnay"
                   name="aboutCompnay"
-                  type="text"
                   className="SDDHw"
                   ref={aboutTheCompany}
                 />
@@ -159,18 +238,21 @@ function CompanyDetails(props) {
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="candidateRequiredSkills" className="gNTSvw question">
+              <label
+                htmlFor="candidateRequiredSkills"
+                className="gNTSvw question"
+              >
                 Candidate Required Skills
               </label>
               <div className="cqMAuL">
-                <input
+                <Creatable
                   id="candidateRequiredSkills"
                   name="candidateRequiredSkills"
-                  type="text"
-                  className="SDDHw"
-                  // defaultValue={jobAdvertData?.candidateRequiredSkills}
-                  // ref={candidateRequiredSkills}
-                />
+                  placeholder="Select an individual"
+                  options={options1}
+                  isMulti
+                  noOptionsMessage={() => "name not found"}
+                ></Creatable>
               </div>
             </div>
 
@@ -243,10 +325,9 @@ function CompanyDetails(props) {
                 Interview process
               </label>
               <div className="cqMAuL">
-                <input
+                <textarea
                   id="interviewProcess"
                   name="interviewProcess"
-                  type="text"
                   className="SDDHw"
                   defaultValue={jobAdvertData?.interviewProcess}
                   ref={interviewProcess}

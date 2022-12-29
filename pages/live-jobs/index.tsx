@@ -74,6 +74,8 @@ function LiveRolesList() {
   };
   useEffect(() => {t();}, []);
 
+  console.log(pItem);
+
   return (
     <div className="search-page-view">
       <div className="ais-Hits">

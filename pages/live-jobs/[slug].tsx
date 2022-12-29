@@ -1,4 +1,4 @@
-import { doc, getFirestore, onSnapshot, writeBatch } from "firebase/firestore";
+import { doc, getFirestore, onSnapshot, serverTimestamp, writeBatch } from "firebase/firestore";
 import router, { useRouter } from "next/router";
 import { useState, useEffect, useRef } from "react";
 import AuthCheck from "../../components/AuthCheck";
@@ -89,6 +89,7 @@ function JobsLiveView(props) {
       batch.set(newCompanyDoc, {
         reviewed: Boolean(liveToggle),
         published: Boolean(reviewedToggle),
+        updatedAt: serverTimestamp(),
       });
 
       await batch.commit();
@@ -105,7 +106,7 @@ function JobsLiveView(props) {
   };
 
   console.log(reviewedToggle);
-  console.log(typeof(props.jobData?.reviewed));
+  console.log(typeof (props.jobData?.reviewed));
 
 
   return (
@@ -117,43 +118,43 @@ function JobsLiveView(props) {
       <div className="eHIaoM">
         <div>
 
-            <div className="jBUQajq field">
-                <label htmlFor="reviewedCheckbox" className="gNTSvw question">Has the role been reviewed? </label>
-                <div className="cqMAuL">
-                  <input
-                    type="checkbox"
-                    id="reviewedCheckbox"
-                    defaultChecked={props.jobData?.reviewed}
-                    ref={reviewedToggle}
-                    // required
-                    style={{ width: 30 }}
-                  />
-                </div>
-              </div>
+          <div className="jBUQajq field">
+            <label htmlFor="reviewedCheckbox" className="gNTSvw question">Has the role been reviewed? </label>
+            <div className="cqMAuL">
+              <input
+                type="checkbox"
+                id="reviewedCheckbox"
+                defaultChecked={props.jobData?.reviewed}
+                ref={reviewedToggle}
+                // required
+                style={{ width: 30 }}
+              />
+            </div>
+          </div>
 
 
-              <div className="jBUQajq field">
-                <label htmlFor="liveCheckbox" className="gNTSvw question">Do you want the role published (live)? </label>
-                <div className="cqMAuL">
-                  <input
-                    type="checkbox"
-                    id="liveCheckbox"
-                    defaultChecked={props.jobData?.published}
-                    ref={liveToggle}
-                    // required
-                    style={{ width: 30 }}
-                  />
-                </div>
-              </div>
+          <div className="jBUQajq field">
+            <label htmlFor="liveCheckbox" className="gNTSvw question">Do you want the role published (live)? </label>
+            <div className="cqMAuL">
+              <input
+                type="checkbox"
+                id="liveCheckbox"
+                defaultChecked={props.jobData?.published}
+                ref={liveToggle}
+                // required
+                style={{ width: 30 }}
+              />
+            </div>
+          </div>
 
-            <button
-              type="submit"
-              className="set-btn"
-              // onClick={null}
-              onClick={updateJobViewState}
-            >
-              Update
-            </button>
+          <button
+            type="submit"
+            className="set-btn"
+            // onClick={null}
+            onClick={updateJobViewState}
+          >
+            Update
+          </button>
         </div>
         <p>{error}</p>
 
