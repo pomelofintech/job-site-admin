@@ -14,41 +14,6 @@ import Loader from "../../components/Loader";
 import { getCompanyDetailsWithJobAdvert } from "../../lib/firebase";
 import Creatable from "react-select/creatable";
 
-const experienceLevelList = [
-  {
-    value: "Internship",
-    label: "Internship",
-  },
-  {
-    value: "Entry/Graduate",
-    label: "Entry/Graduate",
-  },
-  {
-    value: "Junior",
-    label: "Junior",
-  },
-  {
-    value: "Mid",
-    label: "Mid",
-  },
-  {
-    value: "Senior",
-    label: "Senior",
-  },
-  {
-    value: "Lead",
-    label: "Lead",
-  },
-  {
-    value: "Principle",
-    label: "Principle",
-  },
-  {
-    value: "Managment",
-    label: "Managment",
-  },
-];
-
 export default function JobReviewSpec() {
   return (
     <AuthCheck>
@@ -77,7 +42,7 @@ function CompanyDetails(props) {
   const applicationApplyUrl = useRef(null);
   const interviewProcess = useRef(null);
   const jobTitle = useRef(null);
-  const workplaceType = useRef(null);
+  // const workplaceType = useRef(null);
   const visaSponsorship = useRef(null);
   const reviewedToggle = useRef(null);
 
@@ -105,53 +70,33 @@ function CompanyDetails(props) {
     fetchJobAdvertData();
   }, [getFirestore(), s]);
 
-  const [options1, setOptions] = useState([""]);
+  const [techStack, setTechStackOptions] = useState([]);
+  const [primarySkills, setPrimarySkillsOptions] = useState([]);
+  const [sectors, setSectorsOptions] = useState([]);
+  const [jobTitleTags, setJobTitleTagsOptions] = useState([]);
+  const [workplaceType, setWorkplaceTypeOptions] = useState([]);
+  const [experienceLevel, setExperienceLevelOptions] = useState([]);
 
   useEffect(() => {
-    const arr = [];
-
     const docRef = doc(
       getFirestore(),
       "jobAdvertDropdownData",
-      "YUXBMQO8KCd57cRz3lyD"
+      "adminJobAdvertDropdown"
     );
-    // const arr = querySnapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
-    // setDocuments(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
 
     const unsubscribe = onSnapshot(docRef, async (doc) => {
-      // console.log({...doc.data(), id: doc.id})
-      // setLastName(doc.data());
-      for (const key in doc.data().techStack) {
-        const value = doc.data().techStack[key];
-        console.log(key, value);
-        return arr.push({ value: value, label: value });
-      }
+      // console.log({ ...doc.data(), id: doc.id });
+      // console.log(doc.data());
 
+      setTechStackOptions(doc.data().techStack);
+      setPrimarySkillsOptions(doc.data().primarySkills);
+      setSectorsOptions(doc.data().sectors);
+      setJobTitleTagsOptions(doc.data().jobTitleTags);
+      setWorkplaceTypeOptions(doc.data().workplaceType);
+      setExperienceLevelOptions(doc.data().experienceLevel);
     });
-    setOptions(arr);
-
     return () => unsubscribe();
   }, [slug]);
-
-
-
-  console.log("last name");
-  console.log(options1);
-  // console.log(lastName?.techStack);
-
-  // useEffect(() => {
-  //   const getData = async () => {
-  //     const arr = [];
-  //     await axios.get(url).then((res) => {
-  //       let result = res.data.items;
-  //       result.map((user) => {
-  //         return arr.push({ value: user.login, label: user.login });
-  //       });
-  //       setOptions(arr);
-  //     });
-  //   };
-  //   getData();
-  // }, []);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -227,8 +172,20 @@ function CompanyDetails(props) {
               </label>
               <div className="cqMAuL">
                 <input
+                  placeholder="From - 50000"
                   id="salary"
-                  name="salary"
+                  name="salaryFrom"
+                  type="text"
+                  className="SDDHw"
+                  // defaultValue={jobAdvertData?.salary}
+                  // ref={salary}
+                />
+              </div>{" "}
+              <div className="cqMAuL">
+                <input
+                  placeholder="To - 100000"
+                  id="salary"
+                  name="salaryTo"
                   type="text"
                   className="SDDHw"
                   // defaultValue={jobAdvertData?.salary}
@@ -245,14 +202,15 @@ function CompanyDetails(props) {
                 Candidate Required Skills
               </label>
               <div className="cqMAuL">
-                <Creatable
+                <input
+                  placeholder="Candidate Required Skills"
                   id="candidateRequiredSkills"
                   name="candidateRequiredSkills"
-                  placeholder="Select an individual"
-                  options={options1}
-                  isMulti
-                  noOptionsMessage={() => "name not found"}
-                ></Creatable>
+                  type="text"
+                  className="SDDHw"
+                  // defaultValue={jobAdvertData?.salary}
+                  // ref={salary}
+                />
               </div>
             </div>
 
@@ -261,14 +219,14 @@ function CompanyDetails(props) {
                 Candidate Skills
               </label>
               <div className="cqMAuL">
-                <input
+                <Creatable
                   id="candidateSkills"
                   name="candidateSkills"
-                  type="text"
-                  className="SDDHw"
-                  // defaultValue={jobAdvertData?.candidateSkills}
-                  // ref={candidateSkills}
-                />
+                  placeholder="Select required candidate skills"
+                  options={primarySkills}
+                  isMulti
+                  noOptionsMessage={() => "name not found"}
+                ></Creatable>
               </div>
             </div>
 
@@ -305,18 +263,18 @@ function CompanyDetails(props) {
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
+              <label htmlFor="experienceLevel" className="gNTSvw question">
                 Experience level
               </label>
               <div className="cqMAuL">
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  className="SDDHw"
-                  // defaultValue={jobAdvertData?.}
-                  // ref={}
-                />
+                <Creatable
+                  id="experienceLevel"
+                  name="experienceLevel"
+                  placeholder="Select required experience level for candidate"
+                  options={experienceLevel}
+                  isMulti
+                  noOptionsMessage={() => "name not found"}
+                ></Creatable>
               </div>
             </div>
 
@@ -352,34 +310,34 @@ function CompanyDetails(props) {
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
+              <label htmlFor="jobTitleTags" className="gNTSvw question">
                 Job title tags
               </label>
               <div className="cqMAuL">
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  className="SDDHw"
-                  // defaultValue={jobAdvertData?.employmentType}
-                  // ref={employmentType}
-                />
+                <Creatable
+                  id="jobTitleTags"
+                  name="jobTitleTags"
+                  placeholder="Select required experience level for candidate"
+                  options={jobTitleTags}
+                  isMulti
+                  noOptionsMessage={() => "name not found"}
+                ></Creatable>
               </div>
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
+              <label htmlFor="primarySkills" className="gNTSvw question">
                 Primary Skills
               </label>
               <div className="cqMAuL">
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  className="SDDHw"
-                  // defaultValue={jobAdvertData?.employmentType}
-                  // ref={employmentType}
-                />
+                <Creatable
+                  id="primarySkills"
+                  name="primarySkills"
+                  placeholder="Select required primary skills for candidate"
+                  options={primarySkills}
+                  isMulti
+                  noOptionsMessage={() => "name not found"}
+                ></Creatable>
               </div>
             </div>
 
@@ -388,30 +346,30 @@ function CompanyDetails(props) {
                 Workplace type
               </label>
               <div className="cqMAuL">
-                <input
+                <Creatable
                   id="workplaceType"
                   name="workplaceType"
-                  type="text"
-                  className="SDDHw"
-                  defaultValue={jobAdvertData?.workplaceType}
-                  ref={workplaceType}
-                />
+                  placeholder="Select workplace type - Hybrid / Office"
+                  options={workplaceType}
+                  isMulti
+                  noOptionsMessage={() => "name not found"}
+                ></Creatable>
               </div>
             </div>
 
             <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
+              <label htmlFor="techStack" className="gNTSvw question">
                 Tech stack
               </label>
               <div className="cqMAuL">
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  className="SDDHw"
-                  // defaultValue={jobAdvertData?.employmentType}
-                  // ref={employmentType}
-                />
+                <Creatable
+                  id="techStack"
+                  name="techStack"
+                  placeholder="Select tech stack used at the company"
+                  options={techStack}
+                  isMulti
+                  noOptionsMessage={() => "name not found"}
+                ></Creatable>
               </div>
             </div>
 
