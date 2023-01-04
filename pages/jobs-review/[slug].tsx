@@ -28,25 +28,34 @@ export default function JobReviewSpec() {
 
 function CompanyDetails(props) {
   const router = useRouter();
-  const [lastName, setLastName] = useState(null);
   const [jobAdvertData, setJobAdvertData] = useState(null);
   const [companyAdvertData, setCompanyAdvertData] = useState(null);
   const [loading, setLoading] = useState(true);
   const { slug } = router.query;
   const s = Array.isArray(slug) ? slug[0] : slug;
   const [error, setError] = useState("");
-
   const aboutTheCompany = useRef(null);
   const aboutTheRole = useRef(null);
   const employmentType = useRef(null);
   const applicationApplyUrl = useRef(null);
-  const interviewProcess = useRef(null);
   const jobTitle = useRef(null);
-  // const workplaceType = useRef(null);
   const visaSponsorship = useRef(null);
   const reviewedToggle = useRef(null);
-
   const addedAt = useRef(null);
+  const [techStack, setTechStackOptions] = useState([]);
+  const [primarySkills, setPrimarySkillsOptions] = useState([]);
+  const [sectors, setSectorsOptions] = useState([]);
+  const [jobTitleTags, setJobTitleTagsOptions] = useState([]);
+  const [workplaceType, setWorkplaceTypeOptions] = useState([]);
+  const [experienceLevel, setExperienceLevelOptions] = useState([]);
+  const [companyBenefitsList, setCompanyBenefitsList] = useState([
+    { companyBenefits: "" },
+  ]);
+  const [candidateRequiredSkillsList, setCandidateRequiredSkillsList] =
+    useState([{ candidateRequiredSkills: "" }]);
+  const [interviewProcessList, setIinterviewProcessList] = useState([
+    { interviewProcess: "" },
+  ]);
 
   useEffect(() => {
     const fetchJobAdvertData = async () => {
@@ -55,6 +64,7 @@ function CompanyDetails(props) {
         const responseJobAdvert = doc(getFirestore(), "jobAdvert", s);
         const unsubscribe = onSnapshot(responseJobAdvert, async (doc) => {
           setJobAdvertData(doc.data());
+          // ! TODO - Get company company and display in dropdown
           // const com = await getCompanyDetailsWithJobAdvert(doc.data().uid);
           // setCompanyAdvertData(com);
           // console.log(com);
@@ -70,13 +80,6 @@ function CompanyDetails(props) {
     fetchJobAdvertData();
   }, [getFirestore(), s]);
 
-  const [techStack, setTechStackOptions] = useState([]);
-  const [primarySkills, setPrimarySkillsOptions] = useState([]);
-  const [sectors, setSectorsOptions] = useState([]);
-  const [jobTitleTags, setJobTitleTagsOptions] = useState([]);
-  const [workplaceType, setWorkplaceTypeOptions] = useState([]);
-  const [experienceLevel, setExperienceLevelOptions] = useState([]);
-
   useEffect(() => {
     const docRef = doc(
       getFirestore(),
@@ -86,8 +89,6 @@ function CompanyDetails(props) {
 
     const unsubscribe = onSnapshot(docRef, async (doc) => {
       // console.log({ ...doc.data(), id: doc.id });
-      // console.log(doc.data());
-
       setTechStackOptions(doc.data().techStack);
       setPrimarySkillsOptions(doc.data().primarySkills);
       setSectorsOptions(doc.data().sectors);
@@ -130,15 +131,88 @@ function CompanyDetails(props) {
     return toast.success("Company details updated");
   };
 
+  // ! Used for companyBenefitsList
+  // * handle input change - companyBenefitsList
+  const handleInputChangeCompanyBenefitsList = (e, index) => {
+    const { name, value } = e.target;
+    const list = [...companyBenefitsList];
+    list[index][name] = value;
+    setCompanyBenefitsList(list);
+  };
+
+  // * handle click event of the Remove button - companyBenefitsList
+  const handleRemoveClickCompanyBenefitsList = (index) => {
+    const list = [...companyBenefitsList];
+    list.splice(index, 1);
+    setCompanyBenefitsList(list);
+  };
+
+  // * handle click event of the Add button - companyBenefitsList
+  const handleAddClickCompanyBenefitsList = () => {
+    setCompanyBenefitsList([...companyBenefitsList, { companyBenefits: "" }]);
+  };
+
+  // ! Used for candidateRequiredSkillsList
+  // * handle input change - candidateRequiredSkillsList
+  const handleInputChangeCandidateRequiredSkillsList = (e, index) => {
+    const { name, value } = e.target;
+    const list = [...candidateRequiredSkillsList];
+    list[index][name] = value;
+    setCandidateRequiredSkillsList(list);
+  };
+
+  // * handle click event of the Remove button - candidateRequiredSkillsList
+  const handleRemoveClickCandidateRequiredSkillsList = (index) => {
+    const list = [...candidateRequiredSkillsList];
+    list.splice(index, 1);
+    setCandidateRequiredSkillsList(list);
+  };
+
+  // * handle click event of the Add button - candidateRequiredSkillsList
+  const handleAddClickCandidateRequiredSkillsList = () => {
+    setCandidateRequiredSkillsList([
+      ...candidateRequiredSkillsList,
+      { candidateRequiredSkills: "" },
+    ]);
+  };
+
+  // ! Used for interviewProcessList
+  // * handle input change - interviewProcessList
+  const handleInputChangeInterviewProcessList = (e, index) => {
+    const { name, value } = e.target;
+    const list = [...interviewProcessList];
+    list[index][name] = value;
+    setIinterviewProcessList(list);
+  };
+
+  // * handle click event of the Remove button - interviewProcessList
+  const handleRemoveClickInterviewProcessList = (index) => {
+    const list = [...interviewProcessList];
+    list.splice(index, 1);
+    setIinterviewProcessList(list);
+  };
+
+  // * handle click event of the Add button - interviewProcessList
+  const handleAddClickInterviewProcessList = () => {
+    setIinterviewProcessList([
+      ...interviewProcessList,
+      { interviewProcess: "" },
+    ]);
+  };
+
+  console.log(interviewProcessList);
+  console.log(candidateRequiredSkillsList);
+  console.log(companyBenefitsList);
+
   return (
     <div className="fNgGjC content">
       <h2 className="settings-title block_title">Company Details</h2>
       <div className="eHIaoM">
         <div>
-          <form onSubmit={null}>
+          <form>
             <div className="jBUQajq field">
               <label htmlFor="email" className="gNTSvw question">
-                About the company
+                About the company <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <textarea
@@ -153,7 +227,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="aboutTheRole" className="gNTSvw question">
-                About the role
+                About the role <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <textarea
@@ -168,7 +242,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="salary" className="gNTSvw question">
-                Salary bands
+                Salary bands <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <input
@@ -199,24 +273,56 @@ function CompanyDetails(props) {
                 htmlFor="candidateRequiredSkills"
                 className="gNTSvw question"
               >
-                Candidate Required Skills
+                Candidate Required Skills{" "}
+                <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
-                <input
-                  placeholder="Candidate Required Skills"
-                  id="candidateRequiredSkills"
-                  name="candidateRequiredSkills"
-                  type="text"
-                  className="SDDHw"
-                  // defaultValue={jobAdvertData?.salary}
-                  // ref={salary}
-                />
+                <div className="cqMAuL">
+                  {candidateRequiredSkillsList.map((x, i) => {
+                    return (
+                      <div className="cqMAuL">
+                        <input
+                          name="candidateRequiredSkills"
+                          placeholder="e.g. You will need an awareness and understanding of TDD"
+                          type="text"
+                          className="SDDHwDynamicFormInput"
+                          value={x.candidateRequiredSkills}
+                          onChange={(e) =>
+                            handleInputChangeCandidateRequiredSkillsList(e, i)
+                          }
+                        />
+                        <div className="">
+                          {candidateRequiredSkillsList.length !== 1 && (
+                            <button
+                              className="set-btn-remove"
+                              onClick={() =>
+                                handleRemoveClickCandidateRequiredSkillsList(i)
+                              }
+                            >
+                              -
+                            </button>
+                          )}
+                          {candidateRequiredSkillsList.length - 1 === i && (
+                            <button
+                              className="set-btn-add"
+                              onClick={
+                                handleAddClickCandidateRequiredSkillsList
+                              }
+                            >
+                              +
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
             <div className="jBUQajq field">
               <label htmlFor="candidateSkills" className="gNTSvw question">
-                Candidate Skills
+                Candidate Skills <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <Creatable
@@ -232,17 +338,45 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="companyBenefits" className="gNTSvw question">
-                Company Benefits
+                Company Benefits <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
-                <input
-                  id="companyBenefits"
-                  name="companyBenefits"
-                  type="text"
-                  className="SDDHw"
-                  // defaultValue={jobAdvertData?.companyBenefits}
-                  // ref={companyBenefits}
-                />
+                {companyBenefitsList.map((x, i) => {
+                  return (
+                    <div className="cqMAuL">
+                      <input
+                        name="companyBenefits"
+                        placeholder="e.g. Stock Options"
+                        type="text"
+                        className="SDDHwDynamicFormInput"
+                        value={x.companyBenefits}
+                        onChange={(e) =>
+                          handleInputChangeCompanyBenefitsList(e, i)
+                        }
+                      />
+                      <div className="">
+                        {companyBenefitsList.length !== 1 && (
+                          <button
+                            className="set-btn-remove"
+                            onClick={() =>
+                              handleRemoveClickCompanyBenefitsList(i)
+                            }
+                          >
+                            -
+                          </button>
+                        )}
+                        {companyBenefitsList.length - 1 === i && (
+                          <button
+                            className="set-btn-add"
+                            onClick={handleAddClickCompanyBenefitsList}
+                          >
+                            +
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -264,7 +398,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="experienceLevel" className="gNTSvw question">
-                Experience level
+                Experience level <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <Creatable
@@ -280,9 +414,9 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="interviewProcess" className="gNTSvw question">
-                Interview process
+                Interview process <span style={{ color: "red" }}> * </span>
               </label>
-              <div className="cqMAuL">
+              {/* <div className="cqMAuL">
                 <textarea
                   id="interviewProcess"
                   name="interviewProcess"
@@ -290,12 +424,49 @@ function CompanyDetails(props) {
                   defaultValue={jobAdvertData?.interviewProcess}
                   ref={interviewProcess}
                 />
+              </div> */}
+              <div className="cqMAuL">
+                {interviewProcessList.map((x, i) => {
+                  return (
+                    <div className="cqMAuL">
+                      <input
+                        name="interviewProcess"
+                        placeholder="e.g. Stock Options"
+                        type="text"
+                        className="SDDHwDynamicFormInput"
+                        value={x.interviewProcess}
+                        onChange={(e) =>
+                          handleInputChangeInterviewProcessList(e, i)
+                        }
+                      />
+                      <div className="">
+                        {interviewProcessList.length !== 1 && (
+                          <button
+                            className="set-btn-remove"
+                            onClick={() =>
+                              handleRemoveClickInterviewProcessList(i)
+                            }
+                          >
+                            -
+                          </button>
+                        )}
+                        {interviewProcessList.length - 1 === i && (
+                          <button
+                            className="set-btn-add"
+                            onClick={handleAddClickInterviewProcessList}
+                          >+
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
             <div className="jBUQajq field">
               <label htmlFor="jobTitle" className="gNTSvw question">
-                Job title
+                Job title <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <input
@@ -311,7 +482,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="jobTitleTags" className="gNTSvw question">
-                Job title tags
+                Job title tags <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <Creatable
@@ -327,7 +498,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="primarySkills" className="gNTSvw question">
-                Primary Skills
+                Primary Skills <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <Creatable
@@ -343,7 +514,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="workplaceType" className="gNTSvw question">
-                Workplace type
+                Workplace type <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <Creatable
@@ -359,7 +530,7 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="techStack" className="gNTSvw question">
-                Tech stack
+                Tech stack <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <Creatable
@@ -375,39 +546,23 @@ function CompanyDetails(props) {
 
             <div className="jBUQajq field">
               <label htmlFor="visaSponsorship" className="gNTSvw question">
-                Visa sponsorship
+                Visa sponsorship <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <input
+                  type="checkbox"
                   id="visaSponsorship"
-                  name="visaSponsorship"
-                  type="text"
-                  className="SDDHw"
-                  defaultValue={jobAdvertData?.visaSponsorship}
+                  defaultChecked={jobAdvertData?.visaSponsorship}
                   ref={visaSponsorship}
-                />
-              </div>
-            </div>
-
-            <div className="jBUQajq field">
-              <label htmlFor="lastName" className="gNTSvw question">
-                Link to company name
-              </label>
-              <div className="cqMAuL">
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  className="SDDHw"
-                  // defaultValue={jobAdvertData?.}
-                  // ref={}
+                  // required
+                  style={{ width: 30 }}
                 />
               </div>
             </div>
 
             <div className="jBUQajq field">
               <label htmlFor="applicationApplyUrl" className="gNTSvw question">
-                Application URL
+                Application URL <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <input
@@ -422,8 +577,25 @@ function CompanyDetails(props) {
             </div>
 
             <div className="jBUQajq field">
+              <label htmlFor="companyNameLink" className="gNTSvw question">
+                Link to company name <span style={{ color: "red" }}> * </span>
+              </label>
+              <div className="cqMAuL">
+                <Creatable
+                  id="companyNameLink"
+                  name="companyNameLink"
+                  placeholder="Select required experience level for candidate"
+                  options={jobTitleTags}
+                  isMulti
+                  required
+                  noOptionsMessage={() => "name not found"}
+                ></Creatable>
+              </div>
+            </div>
+
+            <div className="jBUQajq field">
               <label htmlFor="reviewedCheckbox" className="gNTSvw question">
-                Role Reviewed
+                Role Reviewed <span style={{ color: "red" }}> * </span>
               </label>
               <div className="cqMAuL">
                 <input
