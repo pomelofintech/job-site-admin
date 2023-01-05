@@ -151,7 +151,6 @@ function CompanyDetails(props) {
   const postCode = useRef(null);
   const [error, setError] = useState("");
   const reviewedToggle = useRef(null);
-
   const SELECT_VALUE_KEY = "compnanySec";
   const animatedComponents = makeAnimated();
   const [isLoading, setLoading] = useState(true);

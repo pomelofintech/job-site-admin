@@ -11,7 +11,7 @@ import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import AuthCheck from "../../components/AuthCheck";
 import Loader from "../../components/Loader";
-import { getCompanyDetailsWithJobAdvert } from "../../lib/firebase";
+import { getCompanyDetailsToLinkToAdvert } from "../../lib/firebase";
 import Creatable from "react-select/creatable";
 
 export default function JobReviewSpec() {
@@ -29,7 +29,6 @@ export default function JobReviewSpec() {
 function CompanyDetails(props) {
   const router = useRouter();
   const [jobAdvertData, setJobAdvertData] = useState(null);
-  const [companyAdvertData, setCompanyAdvertData] = useState(null);
   const [loading, setLoading] = useState(true);
   const { slug } = router.query;
   const s = Array.isArray(slug) ? slug[0] : slug;
@@ -41,13 +40,14 @@ function CompanyDetails(props) {
   const jobTitle = useRef(null);
   const visaSponsorship = useRef(null);
   const reviewedToggle = useRef(null);
-  const addedAt = useRef(null);
   const [techStack, setTechStackOptions] = useState([]);
   const [primarySkills, setPrimarySkillsOptions] = useState([]);
-  const [sectors, setSectorsOptions] = useState([]);
+  // const [sectors, setSectorsOptions] = useState([]);
   const [jobTitleTags, setJobTitleTagsOptions] = useState([]);
   const [workplaceType, setWorkplaceTypeOptions] = useState([]);
   const [experienceLevel, setExperienceLevelOptions] = useState([]);
+  const [companyDetailsArray, setCompanyDetailsArray] = useState([]);
+  var companyDetailsMap = null;
   const [companyBenefitsList, setCompanyBenefitsList] = useState([
     { companyBenefits: "" },
   ]);
@@ -64,21 +64,29 @@ function CompanyDetails(props) {
         const responseJobAdvert = doc(getFirestore(), "jobAdvert", s);
         const unsubscribe = onSnapshot(responseJobAdvert, async (doc) => {
           setJobAdvertData(doc.data());
-          // ! TODO - Get company company and display in dropdown
-          // const com = await getCompanyDetailsWithJobAdvert(doc.data().uid);
-          // setCompanyAdvertData(com);
-          // console.log(com);
+
+          // * - Get company company and display in dropdown
+          const com = await getCompanyDetailsToLinkToAdvert();
+          com.forEach((value) => {
+            // console.log(value.companyName);
+            // console.log(value.uid);
+
+            companyDetailsMap = {"value": value.companyName, "label": value.companyName};
+            setCompanyDetailsArray(companyDetailsArray => [...companyDetailsArray, companyDetailsMap]);
+
+          });
         });
         setLoading(false);
-
         return unsubscribe;
-        // }
       } catch (err) {
         console.error(err);
       }
     };
     fetchJobAdvertData();
   }, [getFirestore(), s]);
+
+  console.log(companyDetailsArray);
+
 
   useEffect(() => {
     const docRef = doc(
@@ -91,7 +99,7 @@ function CompanyDetails(props) {
       // console.log({ ...doc.data(), id: doc.id });
       setTechStackOptions(doc.data().techStack);
       setPrimarySkillsOptions(doc.data().primarySkills);
-      setSectorsOptions(doc.data().sectors);
+      // setSectorsOptions(doc.data().sectors);
       setJobTitleTagsOptions(doc.data().jobTitleTags);
       setWorkplaceTypeOptions(doc.data().workplaceType);
       setExperienceLevelOptions(doc.data().experienceLevel);
@@ -102,10 +110,6 @@ function CompanyDetails(props) {
   const submit = async (e) => {
     e.preventDefault();
     setError("");
-    // if (reviewedToggle === false) {
-    //   return setError("Error creating new company, please try again");
-    // }
-    // console.log(companyName.current.value, backgroundImageUrl.current.value)
 
     const newCompanyDoc = doc(getFirestore(), "companyDetails", s);
     setError("");
@@ -117,9 +121,29 @@ function CompanyDetails(props) {
 
       const batch = writeBatch(getFirestore());
       batch.update(newCompanyDoc, {
+
+        aboutTheCompany: aboutTheCompany.current.value,
+        aboutTheRole: aboutTheRole.current.value,
+        employmentType: employmentType.current.value,
+        applicationApplyUrl: applicationApplyUrl.current.value,
+        jobTitle: jobTitle.current.value,
+        techStack: techStack,
+        candidateSkills: primarySkills,
+        jobTitleTags: jobTitleTags,
+        workplaceType: workplaceType,
+        experienceLevel: experienceLevel,
+        baseSalary: 0,
+        companyBenefits: companyBenefitsList,
+        candidateRequiredSkills: candidateRequiredSkillsList,
+        interviewProcess: interviewProcessList,
+        primarySkills: primarySkills,
+        secondarySkills: primarySkills,
+        visaSponsorship: visaSponsorship.current.checked,
         reviewed: reviewedToggle.current.checked,
+        published: false,
         slug: s,
-        uid: s,
+        companyUid: s,
+        // uid: companyDetailsArray, // need the company uid, not name
         addedAt: serverTimestamp(),
       });
 
@@ -127,7 +151,7 @@ function CompanyDetails(props) {
     } catch (err) {
       return toast.success("Error updating company details, please try again");
     }
-    router.push("/jobs-review");
+    // router.push("/jobs-review");
     return toast.success("Company details updated");
   };
 
@@ -200,16 +224,18 @@ function CompanyDetails(props) {
     ]);
   };
 
-  console.log(interviewProcessList);
-  console.log(candidateRequiredSkillsList);
-  console.log(companyBenefitsList);
+  // console.log(interviewProcessList);
+  // console.log(candidateRequiredSkillsList);
+  // console.log(companyBenefitsList);
+
+
 
   return (
     <div className="fNgGjC content">
       <h2 className="settings-title block_title">Company Details</h2>
       <div className="eHIaoM">
         <div>
-          <form>
+          <form onSubmit={submit}>
             <div className="jBUQajq field">
               <label htmlFor="email" className="gNTSvw question">
                 About the company <span style={{ color: "red" }}> * </span>
@@ -585,10 +611,8 @@ function CompanyDetails(props) {
                   id="companyNameLink"
                   name="companyNameLink"
                   placeholder="Select required experience level for candidate"
-                  options={jobTitleTags}
-                  isMulti
-                  required
-                  noOptionsMessage={() => "name not found"}
+                  options={companyDetailsArray}
+                  noOptionsMessage={() => "Company not found"}
                 ></Creatable>
               </div>
             </div>
@@ -609,7 +633,7 @@ function CompanyDetails(props) {
               </div>
             </div>
 
-            <button type="submit" className="set-btn">
+            <button type="submit" value="submit" className="set-btn">
               Save
             </button>
           </form>

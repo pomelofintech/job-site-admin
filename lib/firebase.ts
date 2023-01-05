@@ -15,6 +15,7 @@ import {
 } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
+import { useState } from "react";
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -93,6 +94,25 @@ export async function getCompanyDetailsWithJobAdvert(companyDetailsID) {
   } else {
     return "could not get company details";
   }
+}
+
+
+/**
+ * Gets all company details, used to link company details and job advert together
+ */
+export async function getCompanyDetailsToLinkToAdvert() {
+
+  let newData = [];
+
+  await getDocs(collection(getFirestore(), "companyDetails"))
+  .then((querySnapshot)=>{               
+        newData = querySnapshot.docs
+          .map((doc) => ({...doc.data(), id:doc.id }));
+      // console.log("companyDetails", newData);
+  })
+
+return newData;
+
 }
 
 /**`
