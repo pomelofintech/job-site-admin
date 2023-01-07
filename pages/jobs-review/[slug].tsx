@@ -48,6 +48,7 @@ function CompanyDetails(props) {
   const [experienceLevel, setExperienceLevelOptions] = useState([]);
   const [companyDetailsArray, setCompanyDetailsArray] = useState([]);
   var companyDetailsMap = null;
+  var experienceLevelMap = null;
   const [companyBenefitsList, setCompanyBenefitsList] = useState([
     { companyBenefits: "" },
   ]);
@@ -56,6 +57,8 @@ function CompanyDetails(props) {
   const [interviewProcessList, setIinterviewProcessList] = useState([
     { interviewProcess: "" },
   ]);
+  const [selected, setSelected] = useState([null]);
+
 
   useEffect(() => {
     const fetchJobAdvertData = async () => {
@@ -111,38 +114,38 @@ function CompanyDetails(props) {
     e.preventDefault();
     setError("");
 
-    const newCompanyDoc = doc(getFirestore(), "companyDetails", s);
+    const newCompanyDoc = doc(getFirestore(), "jobAdvert", s);
     setError("");
     try {
-      // console.log("This is the company name: " + companyName.current.value);
+      console.log("This is the company name: " + aboutTheCompany.current.value);
       // console.log("this is the check box: " + reviewedToggle.current.checked);
       // console.log(jobData.companySectors);
-      // console.log(selected);
+      console.log(aboutTheCompany.current.value);
 
       const batch = writeBatch(getFirestore());
       batch.update(newCompanyDoc, {
 
-        aboutTheCompany: aboutTheCompany.current.value,
-        aboutTheRole: aboutTheRole.current.value,
-        employmentType: employmentType.current.value,
-        applicationApplyUrl: applicationApplyUrl.current.value,
-        jobTitle: jobTitle.current.value,
-        techStack: techStack,
-        candidateSkills: primarySkills,
-        jobTitleTags: jobTitleTags,
-        workplaceType: workplaceType,
-        experienceLevel: experienceLevel,
-        baseSalary: 0,
-        companyBenefits: companyBenefitsList,
-        candidateRequiredSkills: candidateRequiredSkillsList,
-        interviewProcess: interviewProcessList,
-        primarySkills: primarySkills,
-        secondarySkills: primarySkills,
-        visaSponsorship: visaSponsorship.current.checked,
-        reviewed: reviewedToggle.current.checked,
-        published: false,
-        slug: s,
-        companyUid: s,
+        // aboutTheCompany: aboutTheCompany.current.value,
+        // aboutTheRole: aboutTheRole.current.value,
+        // employmentType: employmentType.current.value,
+        // applicationApplyUrl: applicationApplyUrl.current.value,
+        // jobTitle: jobTitle.current.value,
+        // techStack: techStack,
+        // candidateSkills: primarySkills,
+        // jobTitleTags: jobTitleTags,
+        // workplaceType: workplaceType,
+        experienceLevel: selected,
+        // baseSalary: 0, // to do - get value from each box
+        // companyBenefits: companyBenefitsList,
+        // candidateRequiredSkills: candidateRequiredSkillsList,
+        // interviewProcess: interviewProcessList,
+        // primarySkills: primarySkills,
+        // secondarySkills: primarySkills,
+        // visaSponsorship: visaSponsorship.current.checked,
+        // reviewed: reviewedToggle.current.checked,
+        // published: false,
+        // slug: s,
+        // companyUid: s,
         // uid: companyDetailsArray, // need the company uid, not name
         addedAt: serverTimestamp(),
       });
@@ -153,6 +156,45 @@ function CompanyDetails(props) {
     }
     // router.push("/jobs-review");
     return toast.success("Company details updated");
+  };
+
+  const handleSelect = (options: readonly { value: string, label: string }[]) => {
+
+    const selectedInput = options.map((options) => options.label);
+
+    // console.log("selected typeof " + typeof (selected));
+    // console.log("selectedInput typeof " + typeof (selectedInput));
+
+
+    // console.log("Array current selected value from firebase " + selected);
+    // console.log("Array selected value" + selectedInput);
+    console.log("before");
+    console.log(selectedInput);
+    setSelected(selectedInput);
+    console.log("after");
+    console.log(selected);
+
+    experienceLevelMap = {"value": selectedInput, "label": selectedInput};
+    console.log(experienceLevelMap);
+
+
+    selected.forEach((value) => {
+      // console.log(value.companyName);
+      // console.log(value.uid);
+
+
+      // setCompanyDetailsArray(companyDetailsArray => [...companyDetailsArray, companyDetailsMap]);
+
+    });
+
+
+
+    console.log("New selected object ")
+    console.log(selected);
+    //  setSelected(current => [...current,selectedInput] );
+
+    // setSelected(current => [...current,selectedInput] );
+
   };
 
   // ! Used for companyBenefitsList
@@ -434,6 +476,7 @@ function CompanyDetails(props) {
                   options={experienceLevel}
                   isMulti
                   noOptionsMessage={() => "name not found"}
+                  onChange={handleSelect}
                 ></Creatable>
               </div>
             </div>
@@ -633,7 +676,7 @@ function CompanyDetails(props) {
               </div>
             </div>
 
-            <button type="submit" value="submit" className="set-btn">
+            <button type="submit" value="Submit" className="set-btn">
               Save
             </button>
           </form>
